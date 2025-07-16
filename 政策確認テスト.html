@@ -3,315 +3,582 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>キリン堂 2025年度（69期）政策発表会 確認テスト</title>
-    <!-- Tailwind CSS CDN -->
+    <title>69期政策発表会 理解度確認テスト</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Interフォントの指定 */
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: "Inter", sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background */
         }
-        /* カスタムスクロールバー */
-        ::-webkit-scrollbar {
-            width: 8px;
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background-color: #ffffff;
+            border-radius: 1rem; /* Rounded corners */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
+        .question-card {
+            background-color: #f8fafc; /* Lighter background for question card */
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
-        ::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 10px;
+        .answer-option {
+            background-color: #e2e8f0; /* Light gray for options */
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            margin-bottom: 0.75rem;
+            border: 1px solid #cbd5e1; /* Subtle border */
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
+        .answer-option:hover {
+            background-color: #d1d9e6; /* Slightly darker on hover */
+        }
+        .answer-option.selected {
+            background-color: #bfdbfe; /* Light blue when selected */
+            border-color: #60a5fa; /* Blue border when selected */
+        }
+        .answer-option.correct {
+            background-color: #d1fae5; /* Light green for correct */
+            border-color: #34d399; /* Green border */
+        }
+        .answer-option.incorrect {
+            background-color: #fee2e2; /* Light red for incorrect */
+            border-color: #ef4444; /* Red border */
+        }
+        .feedback {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 0.75rem;
+        }
+        .feedback.correct {
+            background-color: #ecfdf5; /* Very light green */
+            color: #059669; /* Dark green text */
+            border: 1px solid #a7f3d0;
+        }
+        .feedback.incorrect {
+            background-color: #fef2f2; /* Very light red */
+            color: #dc2626; /* Dark red text */
+            border: 1px solid #fecaca;
+        }
+        .hint {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #6b7280; /* Gray text for hint */
+        }
+        .button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem; /* More rounded buttons */
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .button-primary {
+            background-color: #3b82f6; /* Blue */
+            color: #ffffff;
+        }
+        .button-primary:hover {
+            background-color: #2563eb; /* Darker blue on hover */
+        }
+        .button-secondary {
+            background-color: #6b7280; /* Gray */
+            color: #ffffff;
+        }
+        .button-secondary:hover {
+            background-color: #4b5563; /* Darker gray on hover */
+        }
+        .score-card {
+            background-color: #e0f2fe; /* Light blue for score */
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        @media (max-width: 640px) {
+            .container {
+                margin: 1rem;
+                padding: 1rem;
+            }
+            .button {
+                width: 100%;
+                margin-top: 0.5rem;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
-    <div id="quiz-container" class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-2xl">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6 rounded-md p-2 bg-blue-100">
-            キリン堂 2025年度（69期）政策発表会 確認テスト
-        </h1>
+<body class="p-4">
+    <div id="quiz-container" class="container">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">69期政策発表会 理解度確認テスト</h1>
 
         <div id="quiz-area">
-            <div id="question-display" class="mb-6">
-                <p class="text-lg font-semibold text-gray-700 mb-4" id="question-text"></p>
-                <div id="options-container" class="space-y-3">
-                    <!-- Options will be dynamically loaded here -->
-                </div>
+            <div class="question-card mb-6">
+                <p id="question-number" class="text-sm text-gray-500 mb-2"></p>
+                <p id="question-text" class="text-lg font-semibold text-gray-900 mb-4"></p>
+                <div id="answer-options">
+                    </div>
             </div>
 
-            <div class="flex justify-between mt-8">
-                <button id="prev-button" class="bg-gray-300 text-gray-800 px-6 py-3 rounded-xl hover:bg-gray-400 transition-colors duration-300 shadow-md">
-                    戻る
-                </button>
-                <button id="next-button" class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors duration-300 shadow-md">
-                    次へ
-                </button>
-                <button id="submit-button" class="bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors duration-300 shadow-md hidden">
-                    結果を見る
-                </button>
+            <div id="feedback-area" class="feedback hidden">
+                <p id="feedback-message" class="font-bold"></p>
+                <p id="rationale-text" class="text-sm mt-2"></p>
+                <p id="hint-text" class="hint"></p>
+            </div>
+
+            <div class="flex justify-between mt-6">
+                <button id="prev-button" class="button button-secondary hidden">前の問題</button>
+                <button id="next-button" class="button button-primary ml-auto">次の問題</button>
             </div>
         </div>
 
-        <div id="results-area" class="hidden mt-8">
-            <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">テスト結果</h2>
-            <p class="text-xl text-center text-gray-700 mb-6" id="score-display"></p>
-            <div id="detailed-results" class="space-y-4">
-                <!-- Detailed results will be displayed here -->
-            </div>
-            <button id="restart-button" class="block mx-auto mt-8 bg-blue-600 text-white px-8 py-4 rounded-xl hover:bg-blue-700 transition-colors duration-300 shadow-md">
-                もう一度挑戦する
-            </button>
+        <div id="score-area" class="score-card hidden">
+            <h2 class="text-2xl font-bold text-blue-800 mb-4">テスト結果</h2>
+            <p class="text-xl text-gray-800 mb-4">正解数: <span id="correct-count" class="font-bold"></span> / <span id="total-questions" class="font-bold"></span></p>
+            <button id="restart-button" class="button button-primary">もう一度テストする</button>
         </div>
     </div>
 
     <script>
-        // Quiz data from the previous immersive artifact
+        // Quiz data from the provided immersive artifact
         const quizData = {
-            "jk": [
+            "lk": [
                 {
-                    "cMa": 0,
-                    "question": "株式会社キリン堂の2025年度（69期）の全社スローガンは何ですか？",
-                    "hint": "資料の「2025年度(69期) 全社スローガン」のセクションを確認してください。",
-                    "dA": [
-                        {"text": "“地域一番の健康ステーション”", "Zo": false, "zqa": "提供された資料には、「その街1番のくすり屋」と明記されています。"},
-                        {"text": "“その街1番のくすり屋”", "Zo": true, "zqa": "資料の「2025年度(69期) 全社スローガン」として正確に記載されています。"},
-                        {"text": "“お客様に選ばれるドラッグストア”", "Zo": false, "zqa": "資料には「その街1番のくすり屋」という具体的なスローガンが示されています。"},
-                        {"text": "“健康と美を支えるパートナー”", "Zo": false, "zqa": "このスローガンは資料に記載されているものとは異なります。"}
+                    "Nqa": 0,
+                    "question": "2025年度(69期)の重点課題「生鮮食品導入拡大」の目的として、資料に記載されているものはどれですか？",
+                    "hint": "重点課題の1番目の項目とその具体的な内容を確認しましょう。",
+                    "eA": [
+                        {
+                            "text": "生鮮食品、加工食品を充実させ、日常生活のカバー領域を拡大すること。",
+                            "Bo": true,
+                            "yMa": "資料P3「1 生鮮食品導入拡大」の冒頭に「生鮮食品、加工食品を充実し、日常生活のカバー領域を拡大する」と記載されています。"
+                        },
+                        {
+                            "text": "調剤薬局機能の更なる推進による利便性向上。",
+                            "Bo": false,
+                            "yMa": "これは「調剤薬局機能拡充」の目的です。"
+                        },
+                        {
+                            "text": "関西エリアへの新規出店を加速し、ドミナントを強化すること。",
+                            "Bo": false,
+                            "yMa": "これは「新規出店加速化」の目的です。"
+                        },
+                        {
+                            "text": "従業員満足度を向上させ、Wellbeing & Wellnessを実現すること。",
+                            "Bo": false,
+                            "yMa": "これは全社スローガンの一つ「イキイキとやりがいで従業員満足を向上します」の目的です。"
+                        }
                     ],
-                    "Ou": 1
+                    "Ru": 0
                 },
                 {
-                    "cMa": 0,
-                    "question": "2025年度（69期）の重点課題の一つである「生鮮食品導入拡大」には、どのような具体的な取り組みが含まれていますか？",
-                    "hint": "資料の重点課題「生鮮食品導入拡大」の項目で、具体的な取り組みを探してください。",
-                    "dA": [
-                        {"text": "加工食品の充実とECサイトの強化", "Zo": false, "zqa": "資料には加工食品の充実については触れられていますが、ECサイトの強化は「生鮮食品導入拡大」の具体的な取り組みとして明記されていません。"},
-                        {"text": "Food&Drug店舗の拡大と生鮮強化改装の拡大", "Zo": true, "zqa": "資料の「1 生鮮食品導入拡大」の項目に、「⇒Food&Drug店舗の拡大」と「⇒生鮮強化改装の拡大」が具体的な取り組みとして記載されています。"},
-                        {"text": "地域の生産者との連携強化", "Zo": false, "zqa": "資料には、地域の生産者との連携強化については具体的に言及されていません。"},
-                        {"text": "デリバリーサービスの導入", "Zo": false, "zqa": "デリバリーサービスの導入は資料の「生鮮食品導入拡大」の具体的な取り組みには含まれていません。"}
+                    "Nqa": 0,
+                    "question": "2025年度(69期)の重点課題「調剤薬局機能拡充」における具体的な取り組みとして、誤っているものはどれですか？",
+                    "hint": "重点課題の2番目の項目と、その下にある箇条書きの具体的な内容を注意深く確認しましょう。",
+                    "eA": [
+                        {
+                            "text": "一体型フォーマットの更なる推進による利便性向上。",
+                            "Bo": false,
+                            "yMa": "これは正しい取り組みです。"
+                        },
+                        {
+                            "text": "医療モール併設のドラッグストアの拡大。",
+                            "Bo": false,
+                            "yMa": "これは正しい取り組みです。"
+                        },
+                        {
+                            "text": "パートナー社員の登録販売者取得拡大による業務領域拡大。",
+                            "Bo": false,
+                            "yMa": "これは正しい取り組みです。"
+                        },
+                        {
+                            "text": "新しいポイントカードシステムを導入すること。",
+                            "Bo": true,
+                            "yMa": "資料P3の「自社ポイントカードへの刷新」は「業務見直し再構築」の項目に続く内容であり、「調剤薬局機能拡充」の直接的な取り組みとしては記載されていません。"
+                        }
                     ],
-                    "Ou": 1
+                    "Ru": 3
                 },
                 {
-                    "cMa": 0,
-                    "question": "「調剤薬局機能拡充」の重点課題において、患者さんの利便性向上と業務効率化のために推進されることは何ですか？",
-                    "hint": "資料の重点課題「調剤薬局機能拡充」のセクションを確認し、技術的な側面からの改善点を探してください。",
-                    "dA": [
-                        {"text": "オンライン診療の導入", "Zo": false, "zqa": "資料にはオンライン診療の導入は記載されていません。DX推進による患者さんの利便性向上と業務効率化が述べられています。"},
-                        {"text": "DX推進", "Zo": true, "zqa": "資料の「2 調剤薬局機能拡充」の項目に、「DX推進により、患者さんの利便性向上と業務効率化」と明記されています。"},
-                        {"text": "薬剤師の増員", "Zo": false, "zqa": "薬剤師の増員は直接的な業務効率化の手段として資料には挙げられていません。"},
-                        {"text": "薬局数の大幅な増加", "Zo": false, "zqa": "資料には薬局数の大幅な増加は記載されていません。"}
+                    "Nqa": 0,
+                    "question": "2025年度(69期)の全社スローガンは何ですか？",
+                    "hint": "資料の4ページ目にある大きな文字のスローガンを確認しましょう。",
+                    "eA": [
+                        {
+                            "text": "“その街1番のくすり屋”",
+                            "Bo": true,
+                            "yMa": "資料P4のタイトルとして「2025年度(69期) 全社スローガン “その街1番のくすり屋”」と明記されています。"
+                        },
+                        {
+                            "text": "“なくてはならないキリン堂”",
+                            "Bo": false,
+                            "yMa": "これはスローガンの先に目指す姿の一つです。"
+                        },
+                        {
+                            "text": "“関西No1ドラッグストア”",
+                            "Bo": false,
+                            "yMa": "これもスローガンの先に目指す姿の一つです。"
+                        },
+                        {
+                            "text": "“お客様起点で新しい価値を創造する”",
+                            "Bo": false,
+                            "yMa": "これはスローガンの具体的な取り組みの一部です。"
+                        }
                     ],
-                    "Ou": 1
+                    "Ru": 0
                 },
                 {
-                    "cMa": 0,
-                    "question": "「業務見直し再構築」の重点課題に含まれる具体的な取り組みは何ですか？",
-                    "hint": "資料の「業務見直し再構築」のセクションを読んで、業務プロセスの改善点を探してください。",
-                    "dA": [
-                        {"text": "従業員の福利厚生の充実", "Zo": false, "zqa": "従業員の福利厚生の充実は「業務見直し再構築」の具体的な取り組みとしては記載されていません。"},
-                        {"text": "新しいシステム導入の検討", "Zo": false, "zqa": "新しいシステム導入の検討は業務見直しの一環ではありますが、資料に明記されているのは自社ポイントカードへの刷新や業務領域の拡大です。"},
-                        {"text": "自社ポイントカードへの刷新", "Zo": true, "zqa": "資料の「3 業務見直し再構築」の項目に、「自社ポイントカードへの刷新」と明記されています。"},
-                        {"text": "店舗デザインの刷新", "Zo": false, "zqa": "店舗デザインの刷新は資料の「業務見直し再構築」の具体的な取り組みには含まれていません。"}
+                    "Nqa": 0,
+                    "question": "全社スローガンの一つ「『お客様・患者さん』の求めているものをカタチにします。」において、まず最初に行うべきこととして強調されているのは何ですか？",
+                    "hint": "スローガン1の詳細説明の冒頭部分に注目しましょう。",
+                    "eA": [
+                        {
+                            "text": "現場・現物・現実をしっかり「視て」、周囲と共有すること。",
+                            "Bo": true,
+                            "yMa": "資料P5に「まずは『See』。現場・現物・現実をしっかり『視て』、周囲と共有する。」と記載されています。"
+                        },
+                        {
+                            "text": "自身の経験や知識だけを頼りに、行動すること。",
+                            "Bo": false,
+                            "yMa": "これは避けるべき行動として挙げられています。"
+                        },
+                        {
+                            "text": "明確なプランを立て、すぐに実行に移すこと。",
+                            "Bo": false,
+                            "yMa": "これは「視て」からの次のステップです。"
+                        },
+                        {
+                            "text": "お客様・患者さんの要望を一方的に聞き入れること。",
+                            "Bo": false,
+                            "yMa": "「視る」ことが強調されています。"
+                        }
                     ],
-                    "Ou": 2
+                    "Ru": 0
                 },
                 {
-                    "cMa": 0,
-                    "question": "「新規出店加速化」の重点課題における出店戦略として挙げられているのは何ですか？",
-                    "hint": "資料の「新規出店加速化」のセクションで、出店エリアに関する記述を探してください。",
-                    "dA": [
-                        {"text": "全国展開の加速", "Zo": false, "zqa": "資料では「関西エリアへの出店」に焦点が当てられています。"},
-                        {"text": "主要都市への集中出店", "Zo": false, "zqa": "資料には主要都市への集中出店という表現は使われていません。"},
-                        {"text": "関西エリアへの出店によるドミナント強化", "Zo": true, "zqa": "資料の「4 新規出店加速化」の項目に、「関西エリアへの出店によるドミナント強化」と明記されています。"},
-                        {"text": "郊外型店舗の強化", "Zo": false, "zqa": "資料には郊外型店舗の強化については言及されていません。"}
+                    "Nqa": 0,
+                    "question": "全社スローガンの一つ「『TEAM キリン堂』で顧客満足を実現します。」で挙げられている「共」のキーワードとして、含まれていないものはどれですか？",
+                    "hint": "スローガン2の詳細説明で繰り返されている「共」の漢字を確認しましょう。",
+                    "eA": [
+                        {
+                            "text": "共同",
+                            "Bo": true,
+                            "yMa": "資料P6には「共有」「共感」「共働」「共創」が挙げられており、「共同」は含まれていません。"
+                        },
+                        {
+                            "text": "共有",
+                            "Bo": false,
+                            "yMa": "これは含まれています。"
+                        },
+                        {
+                            "text": "共感",
+                            "Bo": false,
+                            "yMa": "これは含まれています。"
+                        },
+                        {
+                            "text": "共創",
+                            "Bo": false,
+                            "yMa": "これは含まれています。"
+                        }
                     ],
-                    "Ou": 2
+                    "Ru": 0
                 },
                 {
-                    "cMa": 0,
-                    "question": "全社スローガン「“その街1番のくすり屋”」を実現するための3つの目標のうち、顧客満足に関する目標は何ですか？",
-                    "hint": "資料の全社スローガンを達成するための3つの目標の中で、「顧客満足」という言葉に注目してください。",
-                    "dA": [
-                        {"text": "『イキイキ』と『やりがい』で従業員満足を向上します。", "Zo": false, "zqa": "これは従業員満足に関する目標であり、顧客満足に関する目標ではありません。"},
-                        {"text": "『お客様・患者さん』の求めているものをカタチにします。", "Zo": false, "zqa": "これは顧客起点に関する目標であり、TEAMキリン堂による顧客満足実現とは異なります。"},
-                        {"text": "『TEAM キリン堂』で顧客満足を実現します。", "Zo": true, "zqa": "資料の「2.『TEAM キリン堂』で顧客満足を実現します。」という項目で、顧客満足について言及されています。"},
-                        {"text": "『地域貢献』を通じて社会に貢献します。", "Zo": false, "zqa": "資料には地域貢献を通じて社会に貢献するという目標は記載されていません。"}
+                    "Nqa": 0,
+                    "question": "全社スローガンの一つ「『イキイキ』と『やりがい』で従業員満足を向上します。」の目的は何ですか？",
+                    "hint": "スローガン3の詳細説明の最後の部分に注目しましょう。",
+                    "eA": [
+                        {
+                            "text": "仕事を通じて成長することで、従業員満足を創出すること。",
+                            "Bo": true,
+                            "yMa": "資料P7のまとめ部分に「仕事を通じて成長することで、我々の『従業員満足』を創出しよう！」と記載されています。"
+                        },
+                        {
+                            "text": "お客様に「お買物の楽しさ」のみを提供すること。",
+                            "Bo": false,
+                            "yMa": "これは目的の一部ではありますが、最終的な目的ではありません。"
+                        },
+                        {
+                            "text": "ドラッグストアとしての当たり前の役割と価値を維持すること。",
+                            "Bo": false,
+                            "yMa": "これも目的の一部ではありますが、最終的な目的ではありません。"
+                        },
+                        {
+                            "text": "お客様の来店動機を創出することのみに注力すること。",
+                            "Bo": false,
+                            "yMa": "これも目的の一部ではありますが、最終的な目的ではありません。"
+                        }
                     ],
-                    "Ou": 2
+                    "Ru": 0
                 },
                 {
-                    "cMa": 0,
-                    "question": "「『お客様・患者さん』の求めているものをカタチにします」という目標において、まず最初に行うべき行動は何ですか？",
-                    "hint": "資料の「お客様・患者さん」を主語にした目標の冒頭部分を確認してください。",
-                    "dA": [
-                        {"text": "プランを立てること", "Zo": false, "zqa": "プランを立てる前に、事実を見る必要があります。"},
-                        {"text": "自身の経験や知識だけを頼りにすること", "Zo": false, "zqa": "資料では、自身の経験や知識だけでなく、「現場・現物・現実をしっかり「視て」、周囲と共有する」ことの重要性が強調されています。"},
-                        {"text": "事実を見る、共有すること", "Zo": true, "zqa": "資料の「1.『お客様・患者さん』の求めているものをカタチにします。」の項目で、「事実を見る、共有することに始まり、考え、プランを立て、実行します。」と明記されています。"},
-                        {"text": "行動変容に繋げること", "Zo": false, "zqa": "行動変容は、事実を見て考え、プランを立てた結果として行うべきことです。"}
+                    "Nqa": 0,
+                    "question": "2025年度(69期)の重点課題「新規出店加速化」における具体的な取り組みとして正しいものはどれですか？",
+                    "hint": "重点課題の4番目の項目とその具体的な内容を確認しましょう。",
+                    "eA": [
+                        {
+                            "text": "関西エリアへの出店によるドミナント強化。",
+                            "Bo": true,
+                            "yMa": "資料P3「4 新規出店加速化」の項目に「関西エリアへの出店によるドミナント強化」と「生鮮強化フォーマットでの出店」が記載されています。"
+                        },
+                        {
+                            "text": "DX推進による患者さんの利便性向上。",
+                            "Bo": false,
+                            "yMa": "これは「生鮮食品導入拡大」の取り組みの一部です。"
+                        },
+                        {
+                            "text": "業務見直しによる業務領域拡大。",
+                            "Bo": false,
+                            "yMa": "これは「調剤薬局機能拡充」の取り組みの一部です。"
+                        },
+                        {
+                            "text": "自社ポイントカードへの刷新。",
+                            "Bo": false,
+                            "yMa": "これは「業務見直し再構築」の項目に続く内容です。"
+                        }
                     ],
-                    "Ou": 2
+                    "Ru": 0
                 },
                 {
-                    "cMa": 0,
-                    "question": "「『TEAM キリン堂』で顧客満足を実現します」という目標において、新しい価値創造のために掲げられている4つの「共」は何ですか？",
-                    "hint": "資料の「TEAM キリン堂」に関する目標のセクションで、「共」で始まるキーワードを探してください。",
-                    "dA": [
-                        {"text": "共感、共鳴、共存、共栄", "Zo": false, "zqa": "資料には「共有」「共感」「共働」「共創」と明記されています。"},
-                        {"text": "共有、共感、共働、共創", "Zo": true, "zqa": "資料の「2.『TEAM キリン堂』で顧客満足を実現します。」の項目に、「お客様・患者さんを主語に、「共有」「共感」「共働」「共創」による新しい価値を創造します。」と明記されています。"},
-                        {"text": "共育、協力、共同、共鳴", "Zo": false, "zqa": "資料にはこれらの言葉は使われていません。"},
-                        {"text": "共通、貢献、共生、共利", "Zo": false, "zqa": "資料にはこれらの言葉は使われていません。"}
+                    "Nqa": 0,
+                    "question": "2025年度(69期)の全社スローガン“その街1番のくすり屋”を実現するために、資料P4で挙げられている3つの柱のうち、最も広範に「顧客満足」を実現することを目指しているものはどれですか？",
+                    "hint": "スローガンの3つの柱を再確認し、それぞれの内容が何を主語にしているかに注目しましょう。",
+                    "eA": [
+                        {
+                            "text": "『お客様・患者さん』の求めているものをカタチにします。",
+                            "Bo": false,
+                            "yMa": "これは顧客満足に貢献しますが、より直接的に「顧客満足」を謳っているのは『TEAM キリン堂』です。"
+                        },
+                        {
+                            "text": "『TEAM キリン堂』で顧客満足を実現します。",
+                            "Bo": true,
+                            "yMa": "資料P4の全社スローガンには3つの柱があり、そのうち『TEAM キリン堂』で顧客満足を実現することが、チーム全体での顧客満足実現を直接的に謳っています。"
+                        },
+                        {
+                            "text": "『イキイキ』と『やりがい』で従業員満足を向上します。",
+                            "Bo": false,
+                            "yMa": "これは従業員満足に焦点を当てています。"
+                        },
+                        {
+                            "text": "DX推進により、患者さんの利便性向上と業務効率化。",
+                            "Bo": false,
+                            "yMa": "これは重点課題の一つであり、全社スローガンの柱ではありません。"
+                        }
                     ],
-                    "Ou": 1
+                    "Ru": 1
                 },
                 {
-                    "cMa": 0,
-                    "question": "「『イキイキ』と『やりがい』で従業員満足を向上します」という目標の最終的な目的は何ですか？",
-                    "hint": "資料の「従業員満足」に関する目標のセクションで、最終的な成果として目指すものを見つけてください。",
-                    "dA": [
-                        {"text": "売上目標の達成", "Zo": false, "zqa": "従業員満足の向上は売上目標達成に寄与するものの、直接的な目的としては「仕事を通じたWellbeing & Wellnessの実現」が挙げられています。"},
-                        {"text": "従業員のスキルアップ", "Zo": false, "zqa": "スキルアップは目的の一部ですが、より広範なWellbeing & Wellnessが最終目的です。"},
-                        {"text": "仕事を通じたWellbeing & Wellnessの実現", "Zo": true, "zqa": "資料の「3.『イキイキ』と『やりがい』で従業員満足を向上します。」の項目に、「仕事を通じたWellbeing & Wellnessを実現します。」と明記されています。"},
-                        {"text": "新しい人事制度の導入", "Zo": false, "zqa": "新しい人事制度の導入は資料には明記されていません。"}
+                    "Nqa": 0,
+                    "question": "資料P5で強調されている「お客様・患者さんが求めているものをカタチにします」という方針において、まず「See」することの具体的な意味として、最も適切でないものはどれですか？",
+                    "hint": "「See」の段落で「まずは」と書かれている部分に注目し、その後に続く内容と対比される「避けるべき行動」を探しましょう。",
+                    "eA": [
+                        {
+                            "text": "自身の経験や知識だけを頼りに、決めつけて行動すること。",
+                            "Bo": true,
+                            "yMa": "資料P5には「自身の経験や知識だけを頼りに、決めつけて行動したり、的を射貫ききっていないままの仮説になってはいないだろうか？」とあり、これは「See」の前に避けるべき行動として挙げられています。"
+                        },
+                        {
+                            "text": "現場・現物・現実をしっかり「視て」、周囲と共有すること。",
+                            "Bo": false,
+                            "yMa": "これは「See」の具体的な意味として正しい行動です。"
+                        },
+                        {
+                            "text": "お客様・患者様の立場から物事を視ることからはじめること。",
+                            "Bo": false,
+                            "yMa": "これは「See」の具体的な意味として正しい行動です。"
+                        },
+                        {
+                            "text": "考え、プランし、行動変容に繋げていくこと。",
+                            "Bo": false,
+                            "yMa": "これは「See」の後に続く行動です。"
+                        }
                     ],
-                    "Ou": 2
+                    "Ru": 0
                 },
                 {
-                    "cMa": 0,
-                    "question": "キリン堂が最終的に目指す姿として、資料の最後に挙げられている目標は何ですか？",
-                    "hint": "資料の最終ページで、今後の展望について述べられている部分を確認してください。",
-                    "dA": [
-                        {"text": "“アジアNo1ドラッグストア”", "Zo": false, "zqa": "資料には「関西No1ドラッグストア」と明記されています。"},
-                        {"text": "“世界に羽ばたくキリン堂”", "Zo": false, "zqa": "資料には、より具体的な地域に根差した目標が示されています。"},
-                        {"text": "“関西No1ドラッグストア”", "Zo": true, "zqa": "資料の最後のページに、「“関西No1ドラッグストア”へ。」と明記されています。"},
-                        {"text": "“顧客数No1ドラッグストア”", "Zo": false, "zqa": "資料には「関西No1ドラッグストア」という地域に特化した目標が示されています。"}
+                    "Nqa": 0,
+                    "question": "資料P7の「『イキイキ』と『やりがい』で従業員満足を向上します。」の項目において、「キリン堂の人のチカラ」が加わることで創出される「お客様の来店動機」の具体的な例として、資料で挙げられているものはどれですか？",
+                    "hint": "「お客様の来店動機（またいきたい！）」の直前の記述を確認しましょう。",
+                    "eA": [
+                        {
+                            "text": "「お買物の楽しさをご提供する」こと。",
+                            "Bo": true,
+                            "yMa": "資料P7には「お買物の楽しさをご提供する」と「健康になって頂くことで喜んでいただく」がお客様の来店動機として挙げられています。"
+                        },
+                        {
+                            "text": "「健康になって頂くことで喜んでいただく」こと。",
+                            "Bo": false,
+                            "yMa": "これも来店動機の一つですが、この問題では「お買物の楽しさをご提供する」を正解としています。"
+                        },
+                        {
+                            "text": "「キリン堂さん、キリン堂さん」とご支持いただくこと。",
+                            "Bo": false,
+                            "yMa": "これは来店動機の結果であり、来店動機そのものではありません。"
+                        },
+                        {
+                            "text": "従業員が主体性を持って自律すること。",
+                            "Bo": false,
+                            "yMa": "これは従業員側の行動であり、お客様の来店動機ではありません。"
+                        }
                     ],
-                    "Ou": 2
+                    "Ru": 0
                 }
             ],
-            "Al": 9
+            "wl": 10
         };
 
         let currentQuestionIndex = 0;
-        let userAnswers = new Array(quizData.jk.length).fill(null); // To store user's selected option index
-        let correctCount = 0;
+        let score = 0;
+        let userAnswers = new Array(quizData.lk.length).fill(null); // To store user's selected option index
 
-        const questionTextElement = document.getElementById('question-text');
-        const optionsContainer = document.getElementById('options-container');
+        const quizArea = document.getElementById('quiz-area');
+        const scoreArea = document.getElementById('score-area');
+        const questionNumberElem = document.getElementById('question-number');
+        const questionTextElem = document.getElementById('question-text');
+        const answerOptionsElem = document.getElementById('answer-options');
+        const feedbackArea = document.getElementById('feedback-area');
+        const feedbackMessageElem = document.getElementById('feedback-message');
+        const rationaleTextElem = document.getElementById('rationale-text');
+        const hintTextElem = document.getElementById('hint-text');
         const prevButton = document.getElementById('prev-button');
         const nextButton = document.getElementById('next-button');
-        const submitButton = document.getElementById('submit-button');
-        const quizArea = document.getElementById('quiz-area');
-        const resultsArea = document.getElementById('results-area');
-        const scoreDisplay = document.getElementById('score-display');
-        const detailedResults = document.getElementById('detailed-results');
+        const correctCountElem = document.getElementById('correct-count');
+        const totalQuestionsElem = document.getElementById('total-questions');
         const restartButton = document.getElementById('restart-button');
 
-        function loadQuestion() {
-            const question = quizData.jk[currentQuestionIndex];
-            questionTextElement.textContent = `${currentQuestionIndex + 1}. ${question.question}`;
-            optionsContainer.innerHTML = ''; // Clear previous options
+        function loadQuestion(index) {
+            const question = quizData.lk[index];
+            questionNumberElem.textContent = `問題 ${index + 1} / ${quizData.lk.length}`;
+            questionTextElem.textContent = question.question;
+            answerOptionsElem.innerHTML = '';
+            feedbackArea.classList.add('hidden');
+            feedbackArea.classList.remove('correct', 'incorrect');
 
-            question.dA.forEach((option, index) => {
-                const label = document.createElement('label');
-                label.className = 'flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors duration-200';
-                label.innerHTML = `
-                    <input type="radio" name="question-${currentQuestionIndex}" value="${index}" class="form-radio h-5 w-5 text-blue-600 focus:ring-blue-500">
-                    <span class="ml-3 text-gray-800 text-base">${option.text}</span>
-                `;
-                optionsContainer.appendChild(label);
+            question.eA.forEach((option, i) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.classList.add('answer-option', 'p-3', 'rounded-lg', 'mb-2', 'cursor-pointer', 'transition-colors', 'duration-200', 'ease-in-out');
+                optionDiv.textContent = option.text;
+                optionDiv.dataset.index = i; // Store the index of the option
 
-                // Pre-select if user has already answered
-                const radioInput = label.querySelector('input');
-                if (userAnswers[currentQuestionIndex] !== null && userAnswers[currentQuestionIndex] === index) {
-                    radioInput.checked = true;
+                if (userAnswers[index] === i) {
+                    optionDiv.classList.add('selected');
                 }
+
+                optionDiv.addEventListener('click', () => selectAnswer(index, i));
+                answerOptionsElem.appendChild(optionDiv);
             });
 
             updateNavigationButtons();
+            displayFeedback(index); // Display feedback if already answered
+        }
+
+        function selectAnswer(questionIndex, selectedOptionIndex) {
+            // If already answered, prevent changing answer
+            if (userAnswers[questionIndex] !== null) {
+                return;
+            }
+
+            userAnswers[questionIndex] = selectedOptionIndex;
+            const question = quizData.lk[questionIndex];
+            const selectedOption = question.eA[selectedOptionIndex];
+
+            // Update UI for selected option
+            Array.from(answerOptionsElem.children).forEach(optionDiv => {
+                optionDiv.classList.remove('selected');
+                if (parseInt(optionDiv.dataset.index) === selectedOptionIndex) {
+                    optionDiv.classList.add('selected');
+                }
+                // Disable further clicks on options for this question
+                optionDiv.style.pointerEvents = 'none';
+            });
+
+            // Display feedback
+            displayFeedback(questionIndex);
+        }
+
+        function displayFeedback(questionIndex) {
+            const question = quizData.lk[questionIndex];
+            const selectedAnswerIndex = userAnswers[questionIndex];
+
+            if (selectedAnswerIndex !== null) {
+                feedbackArea.classList.remove('hidden');
+                const isCorrect = question.eA[selectedAnswerIndex].Bo;
+                const correctAnswerIndex = question.eA.findIndex(opt => opt.Bo);
+
+                if (isCorrect) {
+                    feedbackArea.classList.add('correct');
+                    feedbackMessageElem.textContent = '正解です！';
+                } else {
+                    feedbackArea.classList.add('incorrect');
+                    feedbackMessageElem.textContent = '不正解です。';
+                }
+
+                // Show correct/incorrect styling on options
+                Array.from(answerOptionsElem.children).forEach(optionDiv => {
+                    const optionIdx = parseInt(optionDiv.dataset.index);
+                    if (optionIdx === correctAnswerIndex) {
+                        optionDiv.classList.add('correct');
+                    } else if (optionIdx === selectedAnswerIndex && !isCorrect) {
+                        optionDiv.classList.add('incorrect');
+                    }
+                    optionDiv.style.pointerEvents = 'none'; // Ensure options are not clickable after answer
+                });
+
+                rationaleTextElem.textContent = `解説: ${question.eA[correctAnswerIndex].yMa}`;
+                hintTextElem.textContent = `ヒント: ${question.hint}`;
+            } else {
+                feedbackArea.classList.add('hidden');
+            }
         }
 
         function updateNavigationButtons() {
             prevButton.classList.toggle('hidden', currentQuestionIndex === 0);
-            nextButton.classList.toggle('hidden', currentQuestionIndex === quizData.jk.length - 1);
-            submitButton.classList.toggle('hidden', currentQuestionIndex !== quizData.jk.length - 1);
+            nextButton.textContent = currentQuestionIndex === quizData.lk.length - 1 ? '結果を見る' : '次の問題';
         }
 
-        function saveAnswer() {
-            const selectedOption = document.querySelector(`input[name="question-${currentQuestionIndex}"]:checked`);
-            if (selectedOption) {
-                userAnswers[currentQuestionIndex] = parseInt(selectedOption.value);
-            } else {
-                userAnswers[currentQuestionIndex] = null; // No answer selected
-            }
-        }
-
-        function showResults() {
+        function showScore() {
             quizArea.classList.add('hidden');
-            resultsArea.classList.remove('hidden');
-            correctCount = 0;
-            detailedResults.innerHTML = '';
+            scoreArea.classList.remove('hidden');
 
-            quizData.jk.forEach((question, qIndex) => {
-                const userAnswerIndex = userAnswers[qIndex];
-                const correctAnswer = question.dA.find(option => option.Zo);
-                const userAnswer = userAnswerIndex !== null ? question.dA[userAnswerIndex] : null;
-
-                const isCorrect = userAnswer && userAnswer.Zo;
-                if (isCorrect) {
-                    correctCount++;
+            score = 0;
+            userAnswers.forEach((answerIndex, qIndex) => {
+                if (answerIndex !== null && quizData.lk[qIndex].eA[answerIndex].Bo) {
+                    score++;
                 }
-
-                const resultItem = document.createElement('div');
-                resultItem.className = `p-4 rounded-xl shadow-sm border ${isCorrect ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50'}`;
-                resultItem.innerHTML = `
-                    <p class="font-semibold text-gray-800 mb-2">Q${qIndex + 1}: ${question.question}</p>
-                    <p class="text-sm ${isCorrect ? 'text-green-700' : 'text-red-700'}">あなたの回答: ${userAnswer ? userAnswer.text : '未回答'}</p>
-                    <p class="text-sm text-green-700">正解: ${correctAnswer.text}</p>
-                    <p class="text-xs text-gray-600 mt-2">解説: ${correctAnswer.zqa}</p>
-                `;
-                detailedResults.appendChild(resultItem);
             });
 
-            scoreDisplay.textContent = `正解数: ${correctCount} / ${quizData.jk.length}`;
+            correctCountElem.textContent = score;
+            totalQuestionsElem.textContent = quizData.lk.length;
         }
 
-        // Event Listeners
         prevButton.addEventListener('click', () => {
-            saveAnswer();
             if (currentQuestionIndex > 0) {
                 currentQuestionIndex--;
-                loadQuestion();
+                loadQuestion(currentQuestionIndex);
             }
         });
 
         nextButton.addEventListener('click', () => {
-            saveAnswer();
-            if (currentQuestionIndex < quizData.jk.length - 1) {
+            if (currentQuestionIndex < quizData.lk.length - 1) {
                 currentQuestionIndex++;
-                loadQuestion();
+                loadQuestion(currentQuestionIndex);
+            } else {
+                showScore();
             }
-        });
-
-        submitButton.addEventListener('click', () => {
-            saveAnswer(); // Save answer for the last question
-            showResults();
         });
 
         restartButton.addEventListener('click', () => {
             currentQuestionIndex = 0;
-            userAnswers = new Array(quizData.jk.length).fill(null);
-            correctCount = 0;
+            score = 0;
+            userAnswers.fill(null);
+            scoreArea.classList.add('hidden');
             quizArea.classList.remove('hidden');
-            resultsArea.classList.add('hidden');
-            loadQuestion();
+            loadQuestion(currentQuestionIndex);
         });
 
         // Initial load
-        loadQuestion();
+        loadQuestion(currentQuestionIndex);
     </script>
 </body>
 </html>
