@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>就業規則理解度確認テスト</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background */
+        }
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background-color: #ffffff;
+            border-radius: 1rem; /* Rounded corners */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .question-card {
+            background-color: #f8fafc; /* Lighter background for question card */
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .answer-option {
+            background-color: #e2e8f0; /* Light gray for options */
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            margin-bottom: 0.75rem;
+            border: 1px solid #cbd5e1; /* Subtle border */
+        }
+        .answer-option:hover {
+            background-color: #d1d9e6; /* Slightly darker on hover */
+        }
+        .answer-option.selected {
+            background-color: #bfdbfe; /* Light blue when selected */
+            border-color: #60a5fa; /* Blue border when selected */
+        }
+        .answer-option.correct {
+            background-color: #d1fae5; /* Light green for correct */
+            border-color: #34d399; /* Green border */
+        }
+        .answer-option.incorrect {
+            background-color: #fee2e2; /* Light red for incorrect */
+            border-color: #ef4444; /* Red border */
+        }
+        .feedback {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 0.75rem;
+        }
+        .feedback.correct {
+            background-color: #ecfdf5; /* Very light green */
+            color: #059669; /* Dark green text */
+            border: 1px solid #a7f3d0;
+        }
+        .feedback.incorrect {
+            background-color: #fef2f2; /* Very light red */
+            color: #dc2626; /* Dark red text */
+            border: 1px solid #fecaca;
+        }
+        .hint {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #6b7280; /* Gray text for hint */
+        }
+        .button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem; /* More rounded buttons */
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .button-primary {
+            background-color: #3b82f6; /* Blue */
+            color: #ffffff;
+        }
+        .button-primary:hover {
+            background-color: #2563eb; /* Darker blue on hover */
+        }
+        .button-secondary {
+            background-color: #6b7280; /* Gray */
+            color: #ffffff;
+        }
+        .button-secondary:hover {
+            background-color: #4b5563; /* Darker gray on hover */
+        }
+        .score-card {
+            background-color: #e0f2fe; /* Light blue for score */
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        @media (max-width: 640px) {
+            .container {
+                margin: 1rem;
+                padding: 1rem;
+            }
+            .button {
+                width: 100%;
+                margin-top: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div id="quiz-container" class="container">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">就業規則理解度確認テスト</h1>
+
+        <div id="quiz-area">
+            <div class="question-card mb-6">
+                <p id="question-number" class="text-sm text-gray-500 mb-2"></p>
+                <p id="question-text" class="text-lg font-semibold text-gray-900 mb-4"></p>
+                <div id="answer-options">
+                    <!-- Answer options will be dynamically loaded here -->
+                </div>
+            </div>
+
+            <div id="feedback-area" class="feedback hidden">
+                <p id="feedback-message" class="font-bold"></p>
+                <p id="rationale-text" class="text-sm mt-2"></p>
+                <p id="hint-text" class="hint"></p>
+            </div>
+
+            <div class="flex justify-between mt-6">
+                <button id="prev-button" class="button button-secondary hidden">前の問題</button>
+                <button id="next-button" class="button button-primary ml-auto">次の問題</button>
+            </div>
+        </div>
+
+        <div id="score-area" class="score-card hidden">
+            <h2 class="text-2xl font-bold text-blue-800 mb-4">テスト結果</h2>
+            <p class="text-xl text-gray-800 mb-4">正解数: <span id="correct-count" class="font-bold"></span> / <span id="total-questions" class="font-bold"></span></p>
+            <button id="restart-button" class="button button-primary">もう一度テストする</button>
+        </div>
+    </div>
+
+    <script>
+        // Quiz data from the provided immersive artifact
+        const quizData = {
+            "lk": [
+                {
+                    "Nqa": 0,
+                    "question": "試用期間について、以下の記述のうち正しいものはどれですか？",
+                    "hint": "試用期間の長さ、延長の条件、および解雇事由について第12条を確認しましょう。",
+                    "eA": [
+                        {
+                            "text": "試用期間は、原則として採用の日から6ヶ月間である。",
+                            "Bo": false,
+                            "yMa": "就業規則第12条第1項には、試用期間は採用の日から3ヶ月間と定められています。"
+                        },
+                        {
+                            "text": "試用期間中に社員としての適格性を判断するため、会社が必要と認めた場合は、1ヶ月を限度として試用期間を延長することがある。",
+                            "Bo": false,
+                            "yMa": "就業規則第12条第2項には、試用期間は3ヶ月を限度として延長することがあると定められています。"
+                        },
+                        {
+                            "text": "試用期間中または試用期間満了時に、会社の提出書類の記載事項が事実と著しく相違することが判明した場合、会社は当該社員を解雇することができる。",
+                            "Bo": true,
+                            "yMa": "就業規則第12条第3項第1号には、会社への提出書類の記載事項または面接時に申し述べていた事項が、事実と著しく相違することが判明したときは、試用期間中あるいは試用期間満了時に解雇することができると定められています。"
+                        },
+                        {
+                            "text": "試用期間は、勤続年数に通算されない。",
+                            "Bo": false,
+                            "yMa": "就業規則第12条第5項には、試用期間は勤続年数に通算すると定められています。"
+                        }
+                    ],
+                    "Ru": 2
+                },
+                {
+                    "Nqa": 0,
+                    "question": "就業規則第16条によると、株式会社キリン堂の勤務時間と休憩に関する記述として正しいものはどれですか？",
+                    "hint": "労働時間制の種類、1日の労働時間、休憩時間、および特定の部署の労働時間に関する規定を確認しましょう。",
+                    "eA": [
+                        {
+                            "text": "労働時間は1年単位の変形労働時間制を基本とし、平均して1週間当たり40時間以内とする。",
+                            "Bo": false,
+                            "yMa": "就業規則第16条第1項には、労働時間は原則として1ヶ月単位の変形労働時間制と定められています。"
+                        },
+                        {
+                            "text": "1日の労働時間は7時間とし、休憩時間は業務の都合により交替で45分与えられる。",
+                            "Bo": false,
+                            "yMa": "就業規則第16条第2項には、1日の労働時間は8時間とし、休憩時間は1日1時間と定められています。"
+                        },
+                        {
+                            "text": "月ごとの起算日は毎月1日であり、毎月1日を起算とする1ヶ月毎のシフトが前月末日までに決定・通知される。",
+                            "Bo": true,
+                            "yMa": "就業規則第16条第1項および第2項には、月ごとの起算日は毎月1日であり、毎月1日を起算とする1ヶ月毎のシフトが前月末日までに決定・通知されると定められています。"
+                        },
+                        {
+                            "text": "財務部および経理部の労働時間は、1日につき12時間、1週につき60時間を上限とする。",
+                            "Bo": false,
+                            "yMa": "就業規則第16条第3項には、財務部および経理部の所定労働時間は、1日につき10時間、1週につき52時間を上限とすると定められています。"
+                        }
+                    ],
+                    "Ru": 2
+                },
+                {
+                    "Nqa": 0,
+                    "question": "就業規則第19条によると、病気その他止むを得ない事情により欠勤する場合の手続きとして正しいものはどれですか？",
+                    "hint": "欠勤、遅刻、早退、私用外出の届出方法と、診断書が必要となる条件について確認しましょう。",
+                    "eA": [
+                        {
+                            "text": "事前に電話連絡のみで足り、事後の届出書提出は不要である。",
+                            "Bo": false,
+                            "yMa": "就業規則第19条第1項には、緊急の場合を除き事前に所定の届出書を提出して承認を得る必要があると定められており、緊急の場合も電話連絡後速やかに届出書を提出する必要があります。"
+                        },
+                        {
+                            "text": "事前の承認なしに欠勤した場合、いかなる場合でも懲戒処分の対象となる。",
+                            "Bo": false,
+                            "yMa": "就業規則第19条第1項には、緊急の場合には事後の承認でも良いと定められており、必ずしも懲戒処分の対象となるとは限りません。"
+                        },
+                        {
+                            "text": "労働日に連続して3日以上傷病にて欠勤する場合は、医師の診断書の提出を求められることがあり、会社は診断する医師を指定する場合がある。",
+                            "Bo": true,
+                            "yMa": "就業規則第19条第2項には、労働日に連続して3日以上傷病にて欠勤する場合は、医師の診断書の提出を求めることがあり、会社は必要があるときは診断する医師を指定することがあると定められています。"
+                        },
+                        {
+                            "text": "私用外出は、いかなる場合でも認められない。",
+                            "Bo": false,
+                            "yMa": "就業規則第19条第1項には、止むを得ない事情があれば私用外出も認められると定められています。"
+                        }
+                    ],
+                    "Ru": 2
+                },
+                {
+                    "Nqa": 0,
+                    "question": "就業規則第23条に定められている時間外労働の割増賃金について、正しい計算式はどれですか？",
+                    "hint": "時間外労働の時間数に応じて異なる割増率が適用されることに注意して、第23条を確認しましょう。",
+                    "eA": [
+                        {
+                            "text": "1ヶ月60時間以下の時間外労働について、勤務1時間あたりの算定基礎額に100分の150を乗じて得た額とする。",
+                            "Bo": false,
+                            "yMa": "就業規則第23条第1項第1号には、1ヶ月60時間以下の時間外労働については100分の125を乗じるとしています。"
+                        },
+                        {
+                            "text": "1ヶ月60時間を超える時間外労働について、勤務1時間あたりの算定基礎額に100分の125を乗じて得た額とする。",
+                            "Bo": false,
+                            "yMa": "就業規則第23条第1項第2号には、1ヶ月60時間を超える時間外労働については100分の150を乗じるとしています。"
+                        },
+                        {
+                            "text": "1ヶ月60時間以下の時間外労働について、勤務1時間あたりの算定基礎額に100分の125を乗じて得た額とし、1ヶ月60時間を超える時間外労働について、勤務1時間あたりの算定基礎額に100分の150を乗じて得た額とする。",
+                            "Bo": true,
+                            "yMa": "就業規則第23条第1項第1号および第2号に、それぞれ記載の通り定められています。"
+                        },
+                        {
+                            "text": "すべての時間外労働について、勤務1時間あたりの算定基礎額に一律100分の135を乗じて得た額とする。",
+                            "Bo": false,
+                            "yMa": "就業規則第23条には、時間外労働の時間数に応じて異なる割増率が定められています。"
+                        }
+                    ],
+                    "Ru": 2
+                },
+                {
+                    "Nqa": 0,
+                    "question": "就業規則第24条に定められている、時間外、深夜、および休日の勤務に関する記述として正しいものはどれですか？",
+                    "hint": "年少者、育児・介護を行う社員、妊娠中・産後の女性社員に対する勤務制限の条件を第24条で確認しましょう。",
+                    "eA": [
+                        {
+                            "text": "満18歳に満たない者には、いかなる場合でも時間外勤務、深夜勤務および休日勤務をさせない。",
+                            "Bo": false,
+                            "yMa": "就業規則第24条第1項には、労働基準法第60条第3項に該当する場合を除くと定められています。"
+                        },
+                        {
+                            "text": "育児または介護休暇規程に基づき認定された社員は、事業の正常な運営に支障がある場合でも、時間外勤務、休日勤務、深夜勤務をしないことができる。",
+                            "Bo": false,
+                            "yMa": "就業規則第24条第2項には、事業の正常な運営に支障がある場合を除くと定められています。"
+                        },
+                        {
+                            "text": "妊娠中および産後1年を経過しない女性社員が申し出た場合、会社は時間外勤務、深夜勤務および休日勤務をさせることはない。",
+                            "Bo": true,
+                            "yMa": "就業規則第24条第3項には、妊娠中および産後1年を経過しない女性社員が申し出た場合は、会社は時間外勤務、深夜勤務および休日勤務をさせることはないと定められています。"
+                        },
+                        {
+                            "text": "育児または家族介護を行う社員の時間外勤務等の免除は、この規則に詳細が記載されている。",
+                            "Bo": false,
+                            "yMa": "就業規則第24条第4項には、育児または家族介護を行う社員のための時間外勤務等の免除については別に定めるとされています。"
+                        }
+                    ],
+                    "Ru": 0
+                },
+                {
+                    "Nqa": 0,
+                    "question": "就業規則第26条に定められている振替休日に関する記述として正しいものはどれですか？",
+                    "hint": "振替休日が付与される期間と、それが休日出勤として扱われるかどうかに注目して第26条を確認しましょう。",
+                    "eA": [
+                        {
+                            "text": "所定休日に勤務した場合、3ヶ月以内に振替休日を与えることがある。",
+                            "Bo": false,
+                            "yMa": "就業規則第26条第1項には、1ヶ月以内に振替休日を与えることがあると定められています。"
+                        },
+                        {
+                            "text": "振替休日を取得した場合、元の休日の勤務は休日出勤とはみなされない。",
+                            "Bo": true,
+                            "yMa": "就業規則第26条第2項には、振替休日を取得した場合、元の休日の勤務は休日出勤とみなさないと明確に定められています。"
+                        },
+                        {
+                            "text": "振替休日を与える場合、事前の予告は不要である。",
+                            "Bo": false,
+                            "yMa": "就業規則第26条第1項には、前日までに予告の上、と定められています。"
+                        },
+                        {
+                            "text": "振替休日は、所定休日に勤務した週の翌週に必ず取得しなければならない。",
+                            "Bo": false,
+                            "yMa": "就業規則第26条第1項には、1ヶ月以内に取得することができると定められており、必ず翌週に取得する必要はありません。"
+                        }
+                    ],
+                    "Ru": 1
+                },
+                {
+                    "Nqa": 0,
+                    "question": "就業規則第30条に定められている年次有給休暇について、正しい記述はどれですか？",
+                    "hint": "年次有給休暇の基準日、付与条件、繰り越し期間、および出勤率の算定について第30条を確認しましょう。",
+                    "eA": [
+                        {
+                            "text": "年次有給休暇の基準日は毎年1月1日である。",
+                            "Bo": false,
+                            "yMa": "就業規則第30条第1項には、年次有給休暇の基準日は毎年3月1日と定められています。"
+                        },
+                        {
+                            "text": "入社初年度は、勤続3ヶ月の者で、その3ヶ月の所定勤務日数の8割以上を勤務した者には、5日の年次有給休暇が与えられる。",
+                            "Bo": false,
+                            "yMa": "就業規則第30条第2項第1号には、入社初年度は勤続6ヶ月の者で、その6ヶ月の所定勤務日数の8割以上を勤務した者には10日の年次有給休暇が与えられると定められています。"
+                        },
+                        {
+                            "text": "付与された年次有給休暇は、付与日より2年以内に限り繰り越すことができる。",
+                            "Bo": true,
+                            "yMa": "就業規則第30条第3項には、付与された年次有給休暇は、付与日より2年以内に限り繰り越すことができると定められています。"
+                        },
+                        {
+                            "text": "年次有給休暇の取得期間は、出勤率の算定には含まれない。",
+                            "Bo": false,
+                            "yMa": "就業規則第30条第4項には、年次有給休暇の取得期間は、出勤率の算定にあたっては勤務したものとして取り扱うと定められています。"
+                        }
+                    ],
+                    "Ru": 3
+                },
+                {
+                    "Nqa": 0,
+                    "question": "就業規則第32条に定められている年次有給休暇の請求手続きについて、以下の記述のうち正しいものはどれですか？",
+                    "hint": "年次有給休暇の申請方法、会社による時季変更権、病欠との振替、および会社による時季指定について第32条を確認しましょう。",
+                    "eA": [
+                        {
+                            "text": "年次有給休暇は、事前の申請なしに自由に取得できる。",
+                            "Bo": false,
+                            "yMa": "就業規則第32条第1項には、原則として事前に申し出て、会社の承認を得なければならないと定められています。"
+                        },
+                        {
+                            "text": "会社は、業務に支障がある場合でも、社員が請求した日に休暇を与えなければならない。",
+                            "Bo": false,
+                            "yMa": "就業規則第32条第2項には、休暇を与えることが業務に支障のある場合には他の日に変更させることがあると定められています。"
+                        },
+                        {
+                            "text": "病気その他止むを得ない事情で欠勤した場合、当該欠勤日数を年次有給休暇に振り替えることはできない。",
+                            "Bo": false,
+                            "yMa": "就業規則第32条第3項には、病気その他止むを得ない事情で欠勤する場合で、欠勤届を提出したときは当該欠勤日数を年次有給休暇に振り替えることができると定められています。"
+                        },
+                        {
+                            "text": "労働者代表との書面による協定により、各労働者の有する年次有給休暇日数のうち5日を超える部分について、会社があらかじめ時季を指定して取得させることがある。",
+                            "Bo": true,
+                            "yMa": "就業規則第32条第4項には、労働者代表との書面による協定により、各労働者の有する年次有給休暇日数のうち5日を超える部分について、会社があらかじめ時季を指定して取得させることがあると定められています。"
+                        }
+                    ],
+                    "Ru": 3
+                },
+                {
+                    "Nqa": 0,
+                    "question": "就業規則第33条に定められている積立有給休暇について、正しい記述はどれですか？",
+                    "hint": "積立有給休暇の対象となる年次有給休暇の期間、積立上限、および出勤率の算定への影響について第33条を確認しましょう。",
+                    "eA": [
+                        {
+                            "text": "時効により消滅する年次有給休暇は、一切積み立てることはできない。",
+                            "Bo": false,
+                            "yMa": "就業規則第33条第1項には、時効により消滅する年次有給休暇のうち、一定限度を積み立てて使用を認める旨が定められています。"
+                        },
+                        {
+                            "text": "積立有給休暇の対象となるのは、権利発生から1年間を経過した休暇である。",
+                            "Bo": false,
+                            "yMa": "就業規則第33条第3項には、権利発生から2年間を経過した休暇を対象とすると定められています。"
+                        },
+                        {
+                            "text": "毎年3月1日から翌年2月末日までの1年間に、上限なく積み立てることができる。",
+                            "Bo": false,
+                            "yMa": "就業規則第33条第3項には、毎年3月1日から翌年2月末日までの1年間に5日を上限とし、累計40日まで積み立てることができると定められています。"
+                        },
+                        {
+                            "text": "積立有給休暇を取得した日の出勤率の算定にあたっては、出勤したものとして取り扱われる。",
+                            "Bo": true,
+                            "yMa": "就業規則第33条第5項には、積立有給休暇を取得した日の出勤率の算定にあたっては、出勤したものとして取り扱うと定められています。"
+                        }
+                    ],
+                    "Ru": 3
+                },
+                {
+                    "Nqa": 0,
+                    "question": "就業規則第34条に定められている積立有給休暇の使途として、認められているものはどれですか？",
+                    "hint": "積立有給休暇が使用できるのは、年次有給休暇の残日数がなくなった後で、かつ特定の事由に限られることを第34条で確認しましょう。",
+                    "eA": [
+                        {
+                            "text": "退職を理由とする使用。",
+                            "Bo": false,
+                            "yMa": "就業規則第34条には、退職を理由としての使用は認められないと明確に定められています。"
+                        },
+                        {
+                            "text": "傷病により休業が必要な場合、看護、介護により休業が必要な場合、または不妊治療により休業が必要な場合。",
+                            "Bo": true,
+                            "yMa": "就業規則第34条第1号、第2号、第3号に、傷病、看護・介護、不妊治療による休業が必要な場合に使用できると定められています。"
+                        },
+                        {
+                            "text": "年次有給休暇の残日数が十分にある場合の、個人的な旅行。",
+                            "Bo": false,
+                            "yMa": "就業規則第34条には、年次有給休暇の残日数が無い場合に使用できると定められており、個人的な旅行は使途として記載されていません。"
+                        },
+                        {
+                            "text": "自己啓発のための研修受講。",
+                            "Bo": false,
+                            "yMa": "就業規則第34条には、自己啓発のための研修受講は積立有給休暇の使途として記載されていません。"
+                        }
+                    ],
+                    "Ru": 1
+                },
+                {
+                    "Nqa": 0,
+                    "question": "就業規則第36条に定められている特別休暇について、以下の記述のうち正しいものはどれですか？",
+                    "hint": "特別休暇の種類ごとの日数、有給・無給の区別、および取得期間について第36条を確認しましょう。",
+                    "eA": [
+                        {
+                            "text": "本人が結婚する場合の特別休暇は、婚姻届を出した日または結婚式を挙げた日のいずれか早い日から2年以内に取得できる。",
+                            "Bo": false,
+                            "yMa": "就業規則第36条第1項第1号には、1年以内に取得することができると定められています。"
+                        },
+                        {
+                            "text": "配偶者が出産する場合の特別休暇は、有給とはならない。",
+                            "Bo": false,
+                            "yMa": "就業規則第36条第3項には、配偶者が出産するときの特別休暇は有給とすると定められています。"
+                        },
+                        {
+                            "text": "父母が死亡した場合の特別休暇は4日、祖父母が死亡した場合の特別休暇は2日である。",
+                            "Bo": true,
+                            "yMa": "就業規則第36条第1項第4号および第5号には、父母が死亡した場合は4日、祖父母が死亡した場合は2日とそれぞれ定められています。"
+                        },
+                        {
+                            "text": "地震・水害・火災その他の災害により社員の現住居が損壊した場合の特別休暇は、連続する暦日で最大14日間の範囲内で認められる。",
+                            "Bo": false,
+                            "yMa": "就業規則第36条第1項第10号には、原則として連続7日間の範囲内の期間と定められています。"
+                        }
+                    ],
+                    "Ru": 2
+                },
+                {
+                    "Nqa": 0,
+                    "question": "就業規則第39条に定められている母性健康管理のための休暇について、正しい記述はどれですか？",
+                    "hint": "母性健康管理のための休暇の取得頻度、会社が講じる措置、および賃金の支払いについて第39条を確認しましょう。",
+                    "eA": [
+                        {
+                            "text": "妊娠中の女性社員は、医師または助産婦の指示がない限り、妊娠23週までは2週に1回、妊娠24週から35週までは1週に1回の通院休暇が与えられる。",
+                            "Bo": false,
+                            "yMa": "就業規則第39条第1項第1号には、妊娠23週までは4週に1回、妊娠24週から35週までは2週に1回と定められています。"
+                        },
+                        {
+                            "text": "妊娠中または出産後の女性社員から、保健指導または健康診査に基づき勤務時間等について医師等の指導を受けた旨申出があった場合、会社は時差出勤、勤務時間短縮等の措置を講じることはない。",
+                            "Bo": false,
+                            "yMa": "就業規則第39条第2項第1号には、時差出勤、勤務時間短縮等の措置を講ずると定められています。"
+                        },
+                        {
+                            "text": "第1項に定めた休暇を取得した場合、および第2項による措置を講じた場合、原則として賃金は支給される。",
+                            "Bo": false,
+                            "yMa": "就業規則第39条第3項には、原則として賃金を支給しないと定められています。"
+                        },
+                        {
+                            "text": "出産後の女性社員は、医師等の指示により必要な時間の通院休暇が与えられる。",
+                            "Bo": true,
+                            "yMa": "就業規則第39条第1項第2号には、出産後（1年以内）の女性社員は、医師等の指示により必要な時間の通院休暇が与えられると定められています。"
+                        }
+                    ],
+                    "Ru": 3
+                },
+                {
+                    "Nqa": 0,
+                    "question": "就業規則第53条に定められている定年について、正しい記述はどれですか？",
+                    "hint": "定年の年齢、退職日、および定年後の再雇用制度について第53条を確認しましょう。",
+                    "eA": [
+                        {
+                            "text": "社員の定年は満65歳である。",
+                            "Bo": false,
+                            "yMa": "就業規則第53条第1項には、社員の定年は満60歳であると定められています。"
+                        },
+                        {
+                            "text": "定年に達した社員は、いかなる場合でも再雇用されない。",
+                            "Bo": false,
+                            "yMa": "就業規則第53条第2項には、定年後も引き続き雇用されることを希望し、解雇事由または退職事由に該当しない社員については、満65歳まで嘱託として再雇用すると定められています。"
+                        },
+                        {
+                            "text": "定年退職後、嘱託として再雇用する場合の雇用期間は、原則として2ヶ年を単位とする。",
+                            "Bo": false,
+                            "yMa": "就業規則第53条第3項には、定年退職後、嘱託として再雇用する場合の雇用期間は、1ヶ年を単位とすると定められています。"
+                        },
+                        {
+                            "text": "定年に達した日の属する賃金計算期間の末日をもって退職とする。",
+                            "Bo": true,
+                            "yMa": "就業規則第53条第1項には、定年に達した日の属する賃金計算期間の末日をもって退職とすると定められています。"
+                        }
+                    ],
+                    "Ru": 3
+                },
+                {
+                    "Nqa": 0,
+                    "question": "就業規則第54条に定められている社員の身分喪失の条件として、正しくないものはどれですか？",
+                    "hint": "社員の身分が喪失する様々な条件について、第54条の各項目を注意深く確認しましょう。",
+                    "eA": [
+                        {
+                            "text": "退職願を提出して会社が承認したとき。",
+                            "Bo": false,
+                            "yMa": "就業規則第54条第1項第1号には、退職願を提出して会社が承認したときに身分を喪失すると定められています。これは正しい記述です。"
+                        },
+                        {
+                            "text": "休職期間が満了し、復職できないとき。",
+                            "Bo": false,
+                            "yMa": "就業規則第54条第1項第2号には、休職期間が満了し、復職できないときに身分を喪失すると定められています。これは正しい記述です。"
+                        },
+                        {
+                            "text": "育児休業期間中であるとき。",
+                            "Bo": true,
+                            "yMa": "就業規則第54条に、育児休業期間中であるときに社員の身分を喪失するとは定められていません。育児休業は身分喪失の条件ではありません。"
+                        },
+                        {
+                            "text": "会社が退職を勧奨し本人がこれを承認したとき。",
+                            "Bo": false,
+                            "yMa": "就業規則第54条第1項第9号には、会社が退職を勧奨し本人がこれを承認したときに身分を喪失すると定められています。これは正しい記述です。"
+                        }
+                    ],
+                    "Ru": 2
+                },
+                {
+                    "Nqa": 0,
+                    "question": "就業規則第55条に定められている依願退職について、正しい記述はどれですか？",
+                    "hint": "依願退職の際の退職願提出期限と、業務の引継ぎ義務について第55条を確認しましょう。",
+                    "eA": [
+                        {
+                            "text": "退職を希望する場合、最終出勤日の1週間前までに退職願を提出すればよい。",
+                            "Bo": false,
+                            "yMa": "就業規則第55条第1項には、遅くとも最終出勤日の1ヶ月前までに退職願を提出し、会社の許可を得なければならないと定められています。"
+                        },
+                        {
+                            "text": "退職願を提出する際に、会社の許可は不要である。",
+                            "Bo": false,
+                            "yMa": "就業規則第55条第1項には、会社の許可を得なければならないと定められています。"
+                        },
+                        {
+                            "text": "退職を申し出た者は、業務の引継ぎを行わなくてもよい。",
+                            "Bo": false,
+                            "yMa": "就業規則第55条第2項には、最終出勤日までに必要な業務の引継ぎを完了しなければならないと定められています。"
+                        },
+                        {
+                            "text": "退職を希望する場合、遅くとも最終出勤日の1ヶ月前までに退職願を提出し、会社の許可を得なければならない。",
+                            "Bo": true,
+                            "yMa": "就業規則第55条第1項には、退職を希望する場合、遅くとも最終出勤日の1ヶ月前までに退職願を提出し、会社の許可を得なければならないと明確に定められています。"
+                        }
+                    ],
+                    "Ru": 1
+                }
+            ],
+            "wl": 14
+        };
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let userAnswers = new Array(quizData.lk.length).fill(null); // To store user's selected option index
+
+        const quizArea = document.getElementById('quiz-area');
+        const scoreArea = document.getElementById('score-area');
+        const questionNumberElem = document.getElementById('question-number');
+        const questionTextElem = document.getElementById('question-text');
+        const answerOptionsElem = document.getElementById('answer-options');
+        const feedbackArea = document.getElementById('feedback-area');
+        const feedbackMessageElem = document.getElementById('feedback-message');
+        const rationaleTextElem = document.getElementById('rationale-text');
+        const hintTextElem = document.getElementById('hint-text');
+        const prevButton = document.getElementById('prev-button');
+        const nextButton = document.getElementById('next-button');
+        const correctCountElem = document.getElementById('correct-count');
+        const totalQuestionsElem = document.getElementById('total-questions');
+        const restartButton = document.getElementById('restart-button');
+
+        function loadQuestion(index) {
+            const question = quizData.lk[index];
+            questionNumberElem.textContent = `問題 ${index + 1} / ${quizData.lk.length}`;
+            questionTextElem.textContent = question.question;
+            answerOptionsElem.innerHTML = '';
+            feedbackArea.classList.add('hidden');
+            feedbackArea.classList.remove('correct', 'incorrect');
+
+            question.eA.forEach((option, i) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.classList.add('answer-option', 'p-3', 'rounded-lg', 'mb-2', 'cursor-pointer', 'transition-colors', 'duration-200', 'ease-in-out');
+                optionDiv.textContent = option.text;
+                optionDiv.dataset.index = i; // Store the index of the option
+
+                if (userAnswers[index] === i) {
+                    optionDiv.classList.add('selected');
+                }
+
+                optionDiv.addEventListener('click', () => selectAnswer(index, i));
+                answerOptionsElem.appendChild(optionDiv);
+            });
+
+            updateNavigationButtons();
+            displayFeedback(index); // Display feedback if already answered
+        }
+
+        function selectAnswer(questionIndex, selectedOptionIndex) {
+            // If already answered, prevent changing answer
+            if (userAnswers[questionIndex] !== null) {
+                return;
+            }
+
+            userAnswers[questionIndex] = selectedOptionIndex;
+            const question = quizData.lk[questionIndex];
+            const selectedOption = question.eA[selectedOptionIndex];
+
+            // Update UI for selected option
+            Array.from(answerOptionsElem.children).forEach(optionDiv => {
+                optionDiv.classList.remove('selected');
+                if (parseInt(optionDiv.dataset.index) === selectedOptionIndex) {
+                    optionDiv.classList.add('selected');
+                }
+                // Disable further clicks on options for this question
+                optionDiv.style.pointerEvents = 'none';
+            });
+
+            // Display feedback
+            displayFeedback(questionIndex);
+        }
+
+        function displayFeedback(questionIndex) {
+            const question = quizData.lk[questionIndex];
+            const selectedAnswerIndex = userAnswers[questionIndex];
+
+            if (selectedAnswerIndex !== null) {
+                feedbackArea.classList.remove('hidden');
+                const isCorrect = question.eA[selectedAnswerIndex].Bo;
+                const correctAnswerIndex = question.eA.findIndex(opt => opt.Bo);
+
+                if (isCorrect) {
+                    feedbackArea.classList.add('correct');
+                    feedbackMessageElem.textContent = '正解です！';
+                } else {
+                    feedbackArea.classList.add('incorrect');
+                    feedbackMessageElem.textContent = '不正解です。';
+                }
+
+                // Show correct/incorrect styling on options
+                Array.from(answerOptionsElem.children).forEach(optionDiv => {
+                    const optionIdx = parseInt(optionDiv.dataset.index);
+                    if (optionIdx === correctAnswerIndex) {
+                        optionDiv.classList.add('correct');
+                    } else if (optionIdx === selectedAnswerIndex && !isCorrect) {
+                        optionDiv.classList.add('incorrect');
+                    }
+                    optionDiv.style.pointerEvents = 'none'; // Ensure options are not clickable after answer
+                });
+
+                rationaleTextElem.textContent = `解説: ${question.eA[correctAnswerIndex].yMa}`;
+                hintTextElem.textContent = `ヒント: ${question.hint}`;
+            } else {
+                feedbackArea.classList.add('hidden');
+            }
+        }
+
+        function updateNavigationButtons() {
+            prevButton.classList.toggle('hidden', currentQuestionIndex === 0);
+            nextButton.textContent = currentQuestionIndex === quizData.lk.length - 1 ? '結果を見る' : '次の問題';
+        }
+
+        function showScore() {
+            quizArea.classList.add('hidden');
+            scoreArea.classList.remove('hidden');
+
+            score = 0;
+            userAnswers.forEach((answerIndex, qIndex) => {
+                if (answerIndex !== null && quizData.lk[qIndex].eA[answerIndex].Bo) {
+                    score++;
+                }
+            });
+
+            correctCountElem.textContent = score;
+            totalQuestionsElem.textContent = quizData.lk.length;
+        }
+
+        prevButton.addEventListener('click', () => {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion(currentQuestionIndex);
+            }
+        });
+
+        nextButton.addEventListener('click', () => {
+            if (currentQuestionIndex < quizData.lk.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion(currentQuestionIndex);
+            } else {
+                showScore();
+            }
+        });
+
+        restartButton.addEventListener('click', () => {
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers.fill(null);
+            scoreArea.classList.add('hidden');
+            quizArea.classList.remove('hidden');
+            loadQuestion(currentQuestionIndex);
+        });
+
+        // Initial load
+        loadQuestion(currentQuestionIndex);
+    </script>
+</body>
+</html>
