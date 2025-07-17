@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>医療保険クイズ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 30px auto;
+        }
+        h1 {
+            text-align: center;
+            color: #0056b3;
+            margin-bottom: 30px;
+        }
+        #question-area {
+            margin-bottom: 20px;
+        }
+        #question-number {
+            font-size: 1em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        #question-text {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            font-weight: bold;
+            line-height: 1.5;
+        }
+        .choices button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #e9e9e9;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-align: left;
+        }
+        .choices button:hover {
+            background-color: #dcdcdc;
+        }
+        .result-message {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .result-message.correct {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .result-message.incorrect {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        #next-button, #restart-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #next-button:hover, #restart-button:hover {
+            background-color: #0056b3;
+        }
+        #restart-button {
+            background-color: #6c757d;
+        }
+        #restart-button:hover {
+            background-color: #5a6268;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>医療保険クイズ</h1>
+        <div id="question-area">
+            <p id="question-number"></p>
+            <p id="question-text"></p>
+            <div id="choices-container" class="choices">
+                </div>
+        </div>
+        <div id="result-feedback" class="result-message hidden"></div>
+        <button id="next-button" class="hidden">次の問題へ</button>
+        <button id="restart-button" class="hidden">最初に戻る</button>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "後期高齢者医療制度は、75歳以上の高齢者と（？）歳以上の障がい者が対象です。",
+                choices: ["60", "65", "70", "75"],
+                answer: "65"
+            },
+            {
+                question: "医療保険制度で、保険料を徴収し医療機関に対して医療費の一部または全部を支払うのは？",
+                choices: ["医療機関", "患者", "保険者", "被保険者"],
+                answer: "保険者"
+            },
+            {
+                question: "就学前まで（6歳）の負担割合は？（公費除く）",
+                choices: ["無料", "500円まで", "1割", "2割"],
+                answer: "2割"
+            },
+            {
+                question: "7月20日に70歳になった場合、2割負担になるのはいつから？（低所得者の場合）",
+                choices: ["7月1日", "7月20日", "7月21日", "8月1日"],
+                answer: "8月1日"
+            },
+            {
+                question: "7月20日に75歳になった場合、1割負担になるのはいつから？（低所得者・障害なしの場合）",
+                choices: ["7月1日", "7月20日", "7月21日", "8月1日"],
+                answer: "7月20日"
+            },
+            {
+                question: "公的医療保険のなかで、職域保険といえば？",
+                choices: ["国民健康保険", "被用者保険", "後期高齢者医療制度", "労災保険"],
+                answer: "被用者保険"
+            },
+            {
+                question: "後期高齢者医療制度の請求先は？",
+                choices: ["国保連合会", "社保支払基金", "労災保険", "市町村"],
+                answer: "国保連合会"
+            },
+            {
+                question: "オンラインでレセプト請求を行うのは、通常何日～何日まで？",
+                choices: ["1日～5日", "1日～10日", "5日～10日", "5日～15日"],
+                answer: "5日～10日"
+            },
+            {
+                question: "レセコンやオンライン請求で不備が見つかり、その月にレセプト請求できないことをなんという？",
+                choices: ["再請求", "返戻", "保留", "月遅れ"],
+                answer: "保留"
+            },
+            {
+                question: "レセプトに誤りがあり、提出した薬局に送り返されることをなんという？",
+                choices: ["再請求", "返戻", "保留", "月遅れ"],
+                answer: "返戻"
+            },
+            {
+                question: "医科歯科レセプトと調剤レセプトを合わせて点検することをなんという？",
+                choices: ["突合点検", "査定", "返戻", "減額"],
+                answer: "突合点検"
+            },
+            {
+                question: "任意継続保険で、退職後に加入できる期間の限度は？",
+                choices: ["半年", "1年", "2年", "3年"],
+                answer: "2年"
+            },
+            {
+                question: "資格証明書（資ー〇〇・〇〇）を持っている患者さんの自己負担割合は？",
+                choices: ["0割", "1割", "3割", "10割"],
+                answer: "10割"
+            },
+            {
+                question: "後期高齢者医療保険の保険者番号、最初の2桁は？",
+                choices: ["12", "24", "36", "39"],
+                answer: "39"
+            },
+            {
+                question: "後期高齢者医療保険の負担割合の更新時期は通常、何月？",
+                choices: ["1月", "4月", "8月", "10月"],
+                answer: "8月"
+            },
+            {
+                question: "高額療養費の多数該当は、過去12か月以内に何回以上該当した時？",
+                choices: ["4回目以降", "5回目以降", "6回目以降", "8回目以降"],
+                answer: "4回目以降"
+            },
+            {
+                question: "次のうち、全額公費負担にならない公費番号はどれ？",
+                choices: ["10（結核）", "12（生保）", "19（原爆）", "25（中国残留邦人）"],
+                answer: "10（結核）"
+            },
+            {
+                question: "次のうち、全額公費になる公費番号はどれ？",
+                choices: ["21（精神）", "38（肝炎）", "51（特定疾患）", "54（難病）"],
+                answer: "51（特定疾患）"
+            },
+            {
+                question: "生活保護と併用されることのある保険は次のうちどれ？",
+                choices: ["国保", "社保", "後期高齢者", "労災保険"],
+                answer: "社保"
+            },
+            {
+                question: "次のうち、自立支援医療制度でないのはどれ？",
+                choices: ["生活保護", "更生医療", "育成医療", "精神通院医療"],
+                answer: "生活保護"
+            },
+            {
+                question: "自立支援の、自己負担上限管理表で上限に達した場合、それ以降の医療費負担は？",
+                choices: ["無料", "1割負担", "2割負担", "3割負担"],
+                answer: "無料"
+            },
+            {
+                question: "難病の特定医療費、限度額に達するまでの医療費負担は？",
+                choices: ["無料", "1割負担", "2割負担", "3割負担"],
+                answer: "2割負担"
+            },
+            {
+                question: "大阪府で乳幼児医療証をもっている3歳の子供が奈良県で受診した場合、負担割合は？",
+                choices: ["無料", "1割負担", "2割負担", "3割負担"],
+                answer: "2割負担"
+            },
+            {
+                question: "前問の処方箋を、医療証のある大阪の薬局で受付た場合、負担割合は？",
+                choices: ["無料", "1割負担", "2割負担", "3割負担"],
+                answer: "無料"
+            },
+            {
+                question: "工場で作業中に不注意でけがをした場合、適用されるのは？",
+                choices: ["業務災害", "通勤災害", "公務労災", "自賠責"],
+                answer: "業務災害"
+            },
+            {
+                question: "警察官が犯人と格闘してけがした場合、適用されるのは？",
+                choices: ["業務災害", "通勤災害", "公務労災", "自賠責"],
+                answer: "公務労災"
+            },
+            {
+                question: "交通事故の患者さんで保険会社がわからず、健康保険を使わない場合の負担割合は？",
+                choices: ["0%", "30%", "100%", "110%"],
+                answer: "110%"
+            },
+            {
+                question: "健康保険と自賠責保険を併用する場合をなんという？",
+                choices: ["第一者", "第二者", "第三者", "第四者"],
+                answer: "第三者"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        const questionNumber = document.getElementById('question-number');
+        const questionText = document.getElementById('question-text');
+        const choicesContainer = document.getElementById('choices-container');
+        const resultFeedback = document.getElementById('result-feedback');
+        const nextButton = document.getElementById('next-button');
+        const restartButton = document.getElementById('restart-button');
+
+        function loadQuestion() {
+            resultFeedback.classList.add('hidden');
+            resultFeedback.className = 'result-message'; // クラスをリセット
+            nextButton.classList.add('hidden');
+            restartButton.classList.add('hidden');
+
+            choicesContainer.innerHTML = '';
+
+            if (currentQuestionIndex < questions.length) {
+                const q = questions[currentQuestionIndex];
+                questionNumber.textContent = `問題 ${currentQuestionIndex + 1} / ${questions.length}`;
+                questionText.textContent = q.question;
+
+                q.choices.forEach(choice => {
+                    const button = document.createElement('button');
+                    button.textContent = choice;
+                    button.onclick = () => checkAnswer(choice, q.answer);
+                    choicesContainer.appendChild(button);
+                });
+            } else {
+                questionNumber.textContent = "";
+                questionText.textContent = `全 ${questions.length} 問終了しました！お疲れ様でした！`;
+                choicesContainer.innerHTML = '';
+                restartButton.classList.remove('hidden');
+            }
+        }
+
+        function checkAnswer(selectedChoice, correctAnswer) {
+            Array.from(choicesContainer.children).forEach(button => {
+                button.disabled = true;
+            });
+
+            if (selectedChoice === correctAnswer) {
+                resultFeedback.textContent = "正解！";
+                resultFeedback.classList.add('correct');
+            } else {
+                resultFeedback.textContent = `不正解... 正解は「${correctAnswer}」でした。`;
+                resultFeedback.classList.add('incorrect');
+            }
+            resultFeedback.classList.remove('hidden');
+
+            if (currentQuestionIndex < questions.length - 1) {
+                nextButton.classList.remove('hidden');
+            } else {
+                restartButton.classList.remove('hidden');
+            }
+        }
+
+        function goToNextQuestion() {
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            loadQuestion();
+        }
+
+        nextButton.addEventListener('click', goToNextQuestion);
+        restartButton.addEventListener('click', restartQuiz);
+
+        loadQuestion();
+    </script>
+</body>
+</html>
