@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>昇格試験 練習問題</title>
+    <title>昇格試験 練習問題 (最終最終版)</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -26,12 +26,44 @@
             padding-bottom: 10px;
             margin-bottom: 25px;
         }
+        /* クイズ開始画面のスタイル */
+        #quiz-start-screen {
+            text-align: center;
+            padding: 50px 20px;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+            /* display: block; を初期値として設定（CSSで） */
+        }
+        #quiz-start-screen h2 {
+            border-bottom: none;
+            margin-bottom: 20px;
+        }
+        #start-quiz-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            margin-top: 20px;
+        }
+        #start-quiz-btn:hover {
+            background-color: #218838;
+        }
+
         .question-section {
             margin-bottom: 30px;
             padding: 20px;
             background-color: #ecf0f1;
             border-radius: 8px;
             box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+            display: none; /* 初期状態では非表示 */
+        }
+        .question-section.active {
+            display: block; /* アクティブな問題のみ表示 */
         }
         .question-section h3 {
             color: #34495e;
@@ -55,20 +87,44 @@
             color: #27ae60;
             font-weight: normal;
         }
-        .toggle-btn {
+        .btn-group {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px; /* ボタン間のスペース */
+            justify-content: space-between; /* ボタンを左右に配置 */
+            align-items: center;
+        }
+        .left-btns {
+            display: flex;
+            gap: 10px;
+        }
+        .toggle-btn, .check-btn {
             background-color: #3498db;
             color: white;
-            padding: 8px 15px;
+            padding: 10px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            margin-top: 10px;
-            font-size: 0.9em;
+            font-size: 1em;
             transition: background-color 0.2s ease;
         }
-        .toggle-btn:hover {
-            background-color: #2980b9;
+        .check-btn {
+            background-color: #e67e22;
         }
+        .next-btn {
+            background-color: #28a745; /* 緑色 */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s ease;
+        }
+        .toggle-btn:hover { background-color: #2980b9; }
+        .check-btn:hover { background-color: #d35400; }
+        .next-btn:hover { background-color: #218838; }
+
         .choices label {
             display: block;
             margin-bottom: 8px;
@@ -76,20 +132,6 @@
         }
         .choices input[type="radio"] {
             margin-right: 8px;
-        }
-        .check-btn {
-            background-color: #e67e22;
-            color: white;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 15px;
-            font-size: 0.9em;
-            transition: background-color 0.2s ease;
-        }
-        .check-btn:hover {
-            background-color: #d35400;
         }
         .feedback {
             margin-top: 15px;
@@ -108,75 +150,114 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
-        .correct-choice {
+        .correct-choice-highlight {
             background-color: #e0ffe0; /* 正解選択肢の背景色 */
             padding: 2px 5px;
             border-radius: 3px;
+        }
+        #quiz-end-message {
+            text-align: center;
+            font-size: 1.5em;
+            color: #2c3e50;
+            margin-top: 50px;
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>昇格試験 練習問題集</h1>
+        <div id="quiz-start-screen">
+            <h2>昇格試験 練習問題集</h2>
+            <p>準備ができたら「クイズを開始」ボタンを押してください。</p>
+            <button id="start-quiz-btn">クイズを開始</button>
+        </div>
 
-        <h2>一問一答形式</h2>
-        <div class="question-section">
-            <h3>問題1</h3>
+        <div class="question-section" id="qa-q1">
+            <h3>一問一答 問題1</h3>
             <p class="question">ドラッカーの言う企業の目的は？</p>
-            <button class="toggle-btn" onclick="toggleAnswer('qa1')">解答を表示</button>
             <div class="answer-area">
-                <p class="answer-text" id="qa1">企業の目的は、顧客の創造である。</p>
+                <p class="answer-text" id="qa1-answer">企業の目的は、顧客の創造である。</p>
+            </div>
+            <div class="btn-group">
+                <div class="left-btns">
+                    <button class="toggle-btn" onclick="toggleAnswer('qa1-answer')">解答を表示</button>
+                </div>
+                <button class="next-btn" onclick="nextQuestion()">次に進む</button>
             </div>
         </div>
 
-        <div class="question-section">
-            <h3>問題2</h3>
+        <div class="question-section" id="qa-q2">
+            <h3>一問一答 問題2</h3>
             <p class="question">小売業、サービス業の仕事とは？</p>
-            <button class="toggle-btn" onclick="toggleAnswer('qa2')">解答を表示</button>
             <div class="answer-area">
-                <p class="answer-text" id="qa2">売場、店舗をつくること</p>
+                <p class="answer-text" id="qa2-answer">売場、店舗をつくること</p>
+            </div>
+            <div class="btn-group">
+                <div class="left-btns">
+                    <button class="toggle-btn" onclick="toggleAnswer('qa2-answer')">解答を表示</button>
+                </div>
+                <button class="next-btn" onclick="nextQuestion()">次に進む</button>
             </div>
         </div>
 
-        <div class="question-section">
-            <h3>問題3</h3>
+        <div class="question-section" id="qa-q3">
+            <h3>一問一答 問題3</h3>
             <p class="question">Ｘ理論、Ｙ理論とは？</p>
-            <button class="toggle-btn" onclick="toggleAnswer('qa3')">解答を表示</button>
             <div class="answer-area">
-                <p class="answer-text" id="qa3">Ｘ理論：人間とは本質的に怠け者である→人間を道具とみなす、Ｙ理論：人間とは目標を与えればすすんで働くものである→人間を資産と考える</p>
+                <p class="answer-text" id="qa3-answer">Ｘ理論：人間とは本質的に怠け者である→人間を道具とみなす、Ｙ理論：人間とは目標を与えればすすんで働くものである→人間を資産と考える</p>
+            </div>
+            <div class="btn-group">
+                <div class="left-btns">
+                    <button class="toggle-btn" onclick="toggleAnswer('qa3-answer')">解答を表示</button>
+                </div>
+                <button class="next-btn" onclick="nextQuestion()">次に進む</button>
             </div>
         </div>
 
-        <div class="question-section">
-            <h3>問題4</h3>
+        <div class="question-section" id="qa-q4">
+            <h3>一問一答 問題4</h3>
             <p class="question">働きがいをもてるお店の３つの条件とは？</p>
-            <button class="toggle-btn" onclick="toggleAnswer('qa4')">解答を表示</button>
             <div class="answer-area">
-                <p class="answer-text" id="qa4">生産的な仕事、フィードバック情報、継続学習</p>
+                <p class="answer-text" id="qa4-answer">生産的な仕事、フィードバック情報、継続学習</p>
+            </div>
+            <div class="btn-group">
+                <div class="left-btns">
+                    <button class="toggle-btn" onclick="toggleAnswer('qa4-answer')">解答を表示</button>
+                </div>
+                <button class="next-btn" onclick="nextQuestion()">次に進む</button>
             </div>
         </div>
 
-        <div class="question-section">
-            <h3>問題5</h3>
+        <div class="question-section" id="qa-q5">
+            <h3>一問一答 問題5</h3>
             <p class="question">マーケティングの理想とは？</p>
-            <button class="toggle-btn" onclick="toggleAnswer('qa5')">解答を表示</button>
             <div class="answer-area">
-                <p class="answer-text" id="qa5">マーケティングの理想は、販売を不要にすることである。マーケティングが目指すものは、顧客を理解し、製品とサービスを顧客に合わせ、おのずから売れるようにすることである。</p>
+                <p class="answer-text" id="qa5-answer">マーケティングの理想は、販売を不要にすることである。マーケティングが目指すものは、顧客を理解し、製品とサービスを顧客に合わせ、おのずから売れるようにすることである。</p>
+            </div>
+            <div class="btn-group">
+                <div class="left-btns">
+                    <button class="toggle-btn" onclick="toggleAnswer('qa5-answer')">解答を表示</button>
+                </div>
+                <button class="next-btn" onclick="nextQuestion()">次に進む</button>
             </div>
         </div>
 
-        <div class="question-section">
-            <h3>問題6</h3>
+        <div class="question-section" id="qa-q6">
+            <h3>一問一答 問題6</h3>
             <p class="question">イノベーションの７つの機会をのべよ</p>
-            <button class="toggle-btn" onclick="toggleAnswer('qa6')">解答を表示</button>
             <div class="answer-area">
-                <p class="answer-text" id="qa6">１．予期せぬ成功と失敗　２．ギャップを探す　３．ニーズをみつける　４．産業構造の変化　５．人口構造の変化　６．認識の変化　７．新しい知識</p>
+                <p class="answer-text" id="qa6-answer">１．予期せぬ成功と失敗　２．ギャップを探す　３．ニーズをみつける　４．産業構造の変化　５．人口構造の変化　６．認識の変化　７．新しい知識</p>
+            </div>
+            <div class="btn-group">
+                <div class="left-btns">
+                    <button class="toggle-btn" onclick="toggleAnswer('qa6-answer')">解答を表示</button>
+                </div>
+                <button class="next-btn" onclick="nextQuestion()">次に進む</button>
             </div>
         </div>
 
-        <h2>4択問題</h2>
-        <div class="question-section">
-            <h3>問題1</h3>
+        <div class="question-section" id="mc-q1">
+            <h3>4択問題1</h3>
             <p class="question">ドラッカーの言う事業の定義の３つに入らないものはどれか？</p>
             <div class="choices" id="mc1-choices">
                 <label><input type="radio" name="mc1" value="A"> A. 継続</label>
@@ -184,12 +265,17 @@
                 <label><input type="radio" name="mc1" value="C"> C. 使命</label>
                 <label><input type="radio" name="mc1" value="D"> D. 強み</label>
             </div>
-            <button class="check-btn" onclick="checkAnswer('mc1', 'A')">解答を確認</button>
+            <div class="btn-group">
+                <div class="left-btns">
+                    <button class="check-btn" onclick="checkAnswer('mc1', 'A')">解答を確認</button>
+                </div>
+                <button class="next-btn" onclick="nextQuestion()">次に進む</button>
+            </div>
             <div class="feedback" id="mc1-feedback"></div>
         </div>
 
-        <div class="question-section">
-            <h3>問題2</h3>
+        <div class="question-section" id="mc-q2">
+            <h3>4択問題2</h3>
             <p class="question">マネジメントの3つの役割にないものは？</p>
             <div class="choices" id="mc2-choices">
                 <label><input type="radio" name="mc2" value="A"> A. 使命を果たす</label>
@@ -197,12 +283,17 @@
                 <label><input type="radio" name="mc2" value="C"> C. 社会貢献</label>
                 <label><input type="radio" name="mc2" value="D"> D. 管理する</label>
             </div>
-            <button class="check-btn" onclick="checkAnswer('mc2', 'D')">解答を確認</button>
+            <div class="btn-group">
+                <div class="left-btns">
+                    <button class="check-btn" onclick="checkAnswer('mc2', 'D')">解答を確認</button>
+                </div>
+                <button class="next-btn" onclick="nextQuestion()">次に進む</button>
+            </div>
             <div class="feedback" id="mc2-feedback"></div>
         </div>
 
-        <div class="question-section">
-            <h3>問題3</h3>
+        <div class="question-section" id="mc-q3">
+            <h3>4択問題3</h3>
             <p class="question">マネジャーに共通の5つの仕事にないものは？</p>
             <div class="choices" id="mc3-choices">
                 <label><input type="radio" name="mc3" value="A"> A. 継続する</label>
@@ -210,12 +301,17 @@
                 <label><input type="radio" name="mc3" value="C"> C. 組織する</label>
                 <label><input type="radio" name="mc3" value="D"> D. 人材開発</label>
             </div>
-            <button class="check-btn" onclick="checkAnswer('mc3', 'A')">解答を確認</button>
+            <div class="btn-group">
+                <div class="left-btns">
+                    <button class="check-btn" onclick="checkAnswer('mc3', 'A')">解答を確認</button>
+                </div>
+                <button class="next-btn" onclick="nextQuestion()">次に進む</button>
+            </div>
             <div class="feedback" id="mc3-feedback"></div>
         </div>
 
-        <div class="question-section">
-            <h3>問題4</h3>
+        <div class="question-section" id="mc-q4">
+            <h3>4択問題4</h3>
             <p class="question">ドラッカーの言うコミュニケーションに含まれないものは？</p>
             <div class="choices" id="mc4-choices">
                 <label><input type="radio" name="mc4" value="A"> A. 知覚</label>
@@ -223,12 +319,17 @@
                 <label><input type="radio" name="mc4" value="C"> C. 要求</label>
                 <label><input type="radio" name="mc4" value="D"> D. 情報</label>
             </div>
-            <button class="check-btn" onclick="checkAnswer('mc4', 'D')">解答を確認</button>
+            <div class="btn-group">
+                <div class="left-btns">
+                    <button class="check-btn" onclick="checkAnswer('mc4', 'D')">解答を確認</button>
+                </div>
+                <button class="next-btn" onclick="nextQuestion()">次に進む</button>
+            </div>
             <div class="feedback" id="mc4-feedback"></div>
         </div>
 
-        <div class="question-section">
-            <h3>問題5</h3>
+        <div class="question-section" id="mc-q5">
+            <h3>4択問題5</h3>
             <p class="question">イノベーションの３つの成功条件に含まれないものは？</p>
             <div class="choices" id="mc5-choices">
                 <label><input type="radio" name="mc5" value="A"> A. 集中</label>
@@ -236,12 +337,17 @@
                 <label><input type="radio" name="mc5" value="C"> C. 革新性</label>
                 <label><input type="radio" name="mc5" value="D"> D. 貢献</label>
             </div>
-            <button class="check-btn" onclick="checkAnswer('mc5', 'C')">解答を確認</button>
+            <div class="btn-group">
+                <div class="left-btns">
+                    <button class="check-btn" onclick="checkAnswer('mc5', 'C')">解答を確認</button>
+                </div>
+                <button class="next-btn" onclick="nextQuestion()">次に進む</button>
+            </div>
             <div class="feedback" id="mc5-feedback"></div>
         </div>
 
-        <div class="question-section">
-            <h3>問題6</h3>
+        <div class="question-section" id="mc-q6">
+            <h3>4択問題6</h3>
             <p class="question">イノベーションの３つのタブーに含まれないものは？</p>
             <div class="choices" id="mc6-choices">
                 <label><input type="radio" name="mc6" value="A"> A. 未来任せ</label>
@@ -249,12 +355,17 @@
                 <label><input type="radio" name="mc6" value="C"> C. 散漫</label>
                 <label><input type="radio" name="mc6" value="D"> D. 凝りすぎ</label>
             </div>
-            <button class="check-btn" onclick="checkAnswer('mc6', 'B')">解答を確認</button>
+            <div class="btn-group">
+                <div class="left-btns">
+                    <button class="check-btn" onclick="checkAnswer('mc6', 'B')">解答を確認</button>
+                </div>
+                <button class="next-btn" onclick="nextQuestion()">次に進む</button>
+            </div>
             <div class="feedback" id="mc6-feedback"></div>
         </div>
 
-        <div class="question-section">
-            <h3>問題7</h3>
+        <div class="question-section" id="mc-q7">
+            <h3>4択問題7</h3>
             <p class="question">ドラッカーのリーダーの要件３つにあてはまらないものは？</p>
             <div class="choices" id="mc7-choices">
                 <label><input type="radio" name="mc7" value="A"> A. リーダーシップを仕事とみること</label>
@@ -262,12 +373,17 @@
                 <label><input type="radio" name="mc7" value="C"> C. 信頼される</label>
                 <label><input type="radio" name="mc7" value="D"> D. 厳しく指導する</label>
             </div>
-            <button class="check-btn" onclick="checkAnswer('mc7', 'D')">解答を確認</button>
+            <div class="btn-group">
+                <div class="left-btns">
+                    <button class="check-btn" onclick="checkAnswer('mc7', 'D')">解答を確認</button>
+                </div>
+                <button class="next-btn" onclick="nextQuestion()">次に進む</button>
+            </div>
             <div class="feedback" id="mc7-feedback"></div>
         </div>
 
-        <div class="question-section">
-            <h3>問題8</h3>
+        <div class="question-section" id="mc-q8">
+            <h3>4択問題8</h3>
             <p class="question">店長に求められる１０の条件に入らないものは？</p>
             <div class="choices" id="mc8-choices">
                 <label><input type="radio" name="mc8" value="A"> A. 人材採用責任者</label>
@@ -275,67 +391,198 @@
                 <label><input type="radio" name="mc8" value="C"> C. 商品部に対する協力者</label>
                 <label><input type="radio" name="mc8" value="D"> D. 情報管理責任者</label>
             </div>
-            <button class="check-btn" onclick="checkAnswer('mc8', 'A')">解答を確認</button>
+            <div class="btn-group">
+                <div class="left-btns">
+                    <button class="check-btn" onclick="checkAnswer('mc8', 'A')">解答を確認</button>
+                </div>
+                <button class="next-btn" onclick="nextQuestion()">次に進む</button>
+            </div>
             <div class="feedback" id="mc8-feedback"></div>
         </div>
+
+        <div id="quiz-end-message">
+            <p>全ての練習問題を終えました！お疲れ様でした！</p>
+            <button class="toggle-btn" onclick="location.reload()">もう一度最初から</button>
+        </div>
+
     </div>
 
     <script>
-        // 一問一答の解答表示/非表示を切り替える関数
-        function toggleAnswer(id) {
-            const answerElement = document.getElementById(id);
-            if (answerElement.style.display === 'none' || answerElement.style.display === '') {
-                answerElement.style.display = 'block';
-            } else {
-                answerElement.style.display = 'none';
-            }
-        }
+        // DOMContentLoadedイベントで全ての処理を実行することで、HTML要素が確実に読み込まれてからスクリプトが動くようにします。
+        document.addEventListener('DOMContentLoaded', () => {
+            // 変数宣言
+            const quizStartScreen = document.getElementById('quiz-start-screen');
+            const startQuizBtn = document.getElementById('start-quiz-btn');
+            const questionSections = document.querySelectorAll('.question-section');
+            let currentQuestionIndex = 0;
+            const totalQuestions = questionSections.length;
+            const quizEndMessage = document.getElementById('quiz-end-message');
 
-        // 4択問題の解答を確認する関数
-        function checkAnswer(questionName, correctAnswer) {
-            const radios = document.getElementsByName(questionName);
-            let selectedValue = null;
-            for (const radio of radios) {
-                if (radio.checked) {
-                    selectedValue = radio.value;
-                    break;
+            // --- 関数定義 ---
+
+            // クイズ開始ボタンのイベントリスナー
+            if (startQuizBtn) { // ボタンが存在するか確認
+                startQuizBtn.addEventListener('click', () => {
+                    if (quizStartScreen) { // 開始画面要素が存在するか確認
+                        quizStartScreen.style.display = 'none'; // 開始画面を非表示
+                    }
+                    showCurrentQuestion(); // 最初の問題を表示
+                });
+            }
+
+            // 現在の問題を表示・非表示を切り替える
+            function showCurrentQuestion() {
+                // すべての質問セクションを一旦非表示にする
+                questionSections.forEach(section => {
+                    section.style.display = 'none';
+                    section.classList.remove('active');
+                });
+
+                // 現在のインデックスの問題のみ表示する
+                if (currentQuestionIndex < totalQuestions) {
+                    const currentSection = questionSections[currentQuestionIndex];
+                    if (currentSection) { // 問題セクションが存在するか確認
+                        currentSection.style.display = 'block'; // 直接スタイルを適用して確実に表示
+                        currentSection.classList.add('active'); // クラスも残す（スタイリング用）
+                    }
+                }
+                
+                if (quizEndMessage) { // 終了メッセージ要素が存在するか確認
+                    quizEndMessage.style.display = 'none'; // 念のため終了メッセージは非表示に
                 }
             }
 
-            const feedbackElement = document.getElementById(questionName + '-feedback');
-            const choicesContainer = document.getElementById(questionName + '-choices');
+            // 一問一答：解答表示ボタンの動作
+            function toggleAnswer(answerId) {
+                const answerElement = document.getElementById(answerId);
+                const button = event.target; // クリックされたボタン自身
 
-            // まず以前のフィードバックとハイライトをクリア
-            feedbackElement.style.display = 'none';
-            feedbackElement.classList.remove('correct', 'incorrect');
-            const previouslyHighlighted = choicesContainer.querySelector('.correct-choice');
-            if (previouslyHighlighted) {
-                previouslyHighlighted.classList.remove('correct-choice');
-            }
-            
-            if (selectedValue === null) {
-                feedbackElement.textContent = '選択肢を選んでください。';
-                feedbackElement.style.display = 'block';
-                feedbackElement.classList.add('incorrect'); // 選択なしも「不正解」系の表示に
-                return;
-            }
-
-            // 正解の選択肢にハイライトを適用
-            for (const radio of radios) {
-                if (radio.value === correctAnswer) {
-                    radio.parentNode.classList.add('correct-choice');
+                if (answerElement) { // 解答要素が存在するか確認
+                    if (answerElement.style.display === 'none' || answerElement.style.display === '') {
+                        answerElement.style.display = 'block';
+                        button.textContent = '解答を隠す';
+                    } else {
+                        answerElement.style.display = 'none';
+                        button.textContent = '解答を表示';
+                    }
                 }
             }
 
-            if (selectedValue === correctAnswer) {
-                feedbackElement.textContent = '正解です！';
-                feedbackElement.classList.add('correct');
-            } else {
-                feedbackElement.textContent = `残念、不正解です。正解は ${correctAnswer} です。`;
-                feedbackElement.classList.add('incorrect');
+            // 4択問題：解答確認ボタンの動作
+            function checkAnswer(questionName, correctAnswer) {
+                const radios = document.getElementsByName(questionName);
+                let selectedValue = null;
+                for (const radio of radios) {
+                    if (radio.checked) {
+                        selectedValue = radio.value;
+                        break;
+                    }
+                }
+
+                const feedbackElement = document.getElementById(questionName + '-feedback');
+                const choicesContainer = document.getElementById(questionName + '-choices');
+                
+                // 以前のフィードバックとハイライトをクリア
+                if (feedbackElement) { feedbackElement.style.display = 'none'; feedbackElement.classList.remove('correct', 'incorrect'); }
+                const previouslyHighlighted = choicesContainer ? choicesContainer.querySelector('.correct-choice-highlight') : null;
+                if (previouslyHighlighted) {
+                    previouslyHighlighted.classList.remove('correct-choice-highlight');
+                }
+                
+                if (selectedValue === null) {
+                    if (feedbackElement) {
+                        feedbackElement.textContent = '選択肢を選んでください。';
+                        feedbackElement.style.display = 'block';
+                        feedbackElement.classList.add('incorrect');
+                    }
+                    return; // 選択肢がない場合はここで終了
+                }
+
+                // 正解の選択肢にハイライトを適用
+                for (const radio of radios) {
+                    if (radio.value === correctAnswer) {
+                        radio.parentNode.classList.add('correct-choice-highlight');
+                    }
+                    radio.disabled = true; // 解答確認後、選択肢を変更不可にする
+                }
+
+                if (feedbackElement) {
+                    if (selectedValue === correctAnswer) {
+                        feedbackElement.textContent = '正解です！';
+                        feedbackElement.classList.add('correct');
+                    } else {
+                        feedbackElement.textContent = `残念、不正解です。正解は ${correctAnswer} です。`;
+                        feedbackElement.classList.add('incorrect');
+                    }
+                    feedbackElement.style.display = 'block';
+                }
             }
-            feedbackElement.style.display = 'block';
-        }
+
+            // 次の質問に進む
+            function nextQuestion() {
+                // 現在の問題を非表示にする
+                if (currentQuestionIndex < totalQuestions) { // 範囲チェックを追加
+                    const currentSection = questionSections[currentQuestionIndex];
+                    if (currentSection) { // 存在確認
+                        currentSection.style.display = 'none'; // 直接スタイルを適用
+                        currentSection.classList.remove('active');
+                    }
+                }
+
+                currentQuestionIndex++;
+                if (currentQuestionIndex < totalQuestions) {
+                    // 次の問題を表示する
+                    showCurrentQuestion(); // これが次の問題を表示する
+                    
+                    // 次の問題に切り替わった際に、フィードバックや解答をリセット
+                    const currentSection = questionSections[currentQuestionIndex];
+                    if (currentSection) {
+                        const feedback = currentSection.querySelector('.feedback');
+                        if (feedback) {
+                            feedback.style.display = 'none';
+                            feedback.classList.remove('correct', 'incorrect'); // クラスもクリア
+                        }
+                        const answerText = currentSection.querySelector('.answer-text');
+                        if (answerText) {
+                            answerText.style.display = 'none';
+                            const toggleBtn = currentSection.querySelector('.toggle-btn');
+                            if(toggleBtn) toggleBtn.textContent = '解答を表示'; // ボタンテキストをリセット
+                        }
+                        
+                        // 4択問題のラジオボタンをリセット（選択解除、ハイライト解除、有効化）
+                        const radioButtons = currentSection.querySelectorAll('input[type="radio"]');
+                        radioButtons.forEach(radio => {
+                            radio.checked = false;
+                            radio.disabled = false;
+                            radio.parentNode.classList.remove('correct-choice-highlight');
+                        });
+                    }
+
+                } else {
+                    // 全ての質問が終了
+                    if (quizEndMessage) {
+                        quizEndMessage.style.display = 'block';
+                    }
+                }
+            }
+
+            // ページロード時にクイズ開始画面のみ表示し、問題はすべて非表示にする初期設定
+            if (quizStartScreen) { // 念のため存在チェック
+                quizStartScreen.style.display = 'block';
+            }
+            questionSections.forEach(section => {
+                section.style.display = 'none';
+                section.classList.remove('active'); // 念のためactiveクラスも削除
+            });
+            if (quizEndMessage) { // 念のため存在チェック
+                quizEndMessage.style.display = 'none';
+            }
+
+            // これらの関数をグローバルスコープで利用できるようにするため、windowオブジェクトにアタッチ
+            window.toggleAnswer = toggleAnswer;
+            window.checkAnswer = checkAnswer;
+            window.nextQuestion = nextQuestion;
+        });
     </script>
 </body>
 </html>
